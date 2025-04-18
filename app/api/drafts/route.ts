@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     // En una implementación real, obtendríamos el ID del usuario de la sesión
     const userId = null // Por ahora es null hasta implementar autenticación
 
-    const drafts = await listDrafts(limit, offset, userId)
+    const drafts = await listDrafts(limit, offset)
 
     return NextResponse.json({
       drafts: drafts.map((draft) => ({

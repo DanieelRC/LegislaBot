@@ -69,67 +69,6 @@ export async function getApiUsageStats(): Promise<{
   }
 }
 
-// Función para obtener el resumen de uso de API con costos y filtros de fecha
-export async function getApiUsageSummary(
-  startDate?: Date | string,
-  endDate?: Date | string
-): Promise<ApiUsageSummary[]> {
-  try {
-    const start = startDate ? new Date(startDate) : undefined
-    const end = endDate ? new Date(endDate) : undefined
-
-    let query = db
-      .select({
-        api_name: apiUsageTable.api_name,
-        total_tokens: sql`COALESCE(SUM(${apiUsageTable.tokens_used}), 0)`.as(
-          "total_tokens"
-        ),
-      })
-      .from(apiUsageTable)
-
-    if (start) {
-      query = query.where(apiUsageTable.created_at.gte(start))
-    }
-    if (end) {
-      query = query.where(apiUsageTable.created_at.lte(end))
-    }
-
-    query = query.groupBy(apiUsageTable.api_name)
-    const results = await query
-
-    return results.map(({ api_name, total_tokens }) => {
-      const tokens = Number(total_tokens ?? 0)
-      return {
-        api_name,
-        total_tokens: tokens,
-        total_cost: tokens * getCostPerToken(api_name),
-      }
-    })
-  } catch (error) {
-    console.error("Error al obtener resumen de uso de API:", error)
-    return []
-  }
-}
-
-// Función para ejecutar consultas SQL personalizadas
-export async function executeQuery<T = any>(
-  queryString: string,
-  params: any[] = []
-): Promise<T[]> {
-  try {
-    const rawQ = sql.raw(queryString, ...params)
-    const { rows } = await db.execute(rawQ)
-    return rows as T[]
-  } catch (error) {
-    console.error(`Error al ejecutar consulta: ${queryString}`, error)
-    throw new Error(
-      `Error en la base de datos: ${
-        error instanceof Error ? error.message : "desconocido"
-      }`
-    )
-  }
-}
-
 // Función auxiliar para determinar costo por token según el API
 function getCostPerToken(apiName: string): number {
   switch (apiName.toLowerCase()) {
