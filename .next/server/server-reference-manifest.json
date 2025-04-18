@@ -1,0 +1,72 @@
+{
+  "node": {
+    "df5f39f3bc686fbea5da598aadefb7de697c9799": {
+      "workers": {
+        "app/bills/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Cbills.ts%22%2C%5B%22getBills%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/bills/page": "rsc"
+      }
+    },
+    "03fbbc60e6d9ead40254ec3f9b2e1bbe772f10a5": {
+      "workers": {
+        "app/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%2C%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Cgenerate-bill.ts%22%2C%5B%22generateBill%22%5D%5D%5D&__client_imported__=true!",
+        "app/bills/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/page": "action-browser",
+        "app/bills/page": "action-browser"
+      }
+    },
+    "1788630b025adc8751fbf0da1ea3e1b8477c8ab4": {
+      "workers": {
+        "app/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%2C%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Cgenerate-bill.ts%22%2C%5B%22generateBill%22%5D%5D%5D&__client_imported__=true!",
+        "app/bills/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/page": "action-browser",
+        "app/bills/page": "action-browser"
+      }
+    },
+    "20ff0cce5c9357719115c842c58493fcacde02b3": {
+      "workers": {
+        "app/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%2C%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Cgenerate-bill.ts%22%2C%5B%22generateBill%22%5D%5D%5D&__client_imported__=true!",
+        "app/bills/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/page": "action-browser",
+        "app/bills/page": "action-browser"
+      }
+    },
+    "6088c4a5dc92352c07db305c05f88dfe4469ecab": {
+      "workers": {
+        "app/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%2C%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Cgenerate-bill.ts%22%2C%5B%22generateBill%22%5D%5D%5D&__client_imported__=true!",
+        "app/bills/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/page": "action-browser",
+        "app/bills/page": "action-browser"
+      }
+    },
+    "7cdea57f5bfd84f26a69c9ab8b12cb836306d5ed": {
+      "workers": {
+        "app/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%2C%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Cgenerate-bill.ts%22%2C%5B%22generateBill%22%5D%5D%5D&__client_imported__=true!",
+        "app/bills/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/page": "action-browser",
+        "app/bills/page": "action-browser"
+      }
+    },
+    "de87da151e9b05102b87c680f22dff65c5f845b8": {
+      "workers": {
+        "app/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Csave-draft.ts%22%2C%5B%22getDrafts%22%2C%22deleteDraftAction%22%2C%22deleteDraft%22%2C%22getDraftByIdAction%22%2C%22saveDraft%22%5D%5D%2C%5B%22C%3A%5C%5CUsers%5C%5Crodri%5C%5CProyectos%5C%5Clegisla-bot-v1%5C%5Capp%5C%5Cactions%5C%5Cgenerate-bill.ts%22%2C%5B%22generateBill%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "XoxceAZCC3SkYq7n6IMNhtIYLvbFhOADHC3hhwoDJnI="
+}
