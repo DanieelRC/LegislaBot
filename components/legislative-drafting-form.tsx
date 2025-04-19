@@ -33,10 +33,10 @@ export function LegislativeDraftingForm() {
 
       // Actualizar los pasos a medida que avanza el proceso
       const steps = [
-        { delay: 1000, step: 1 }, // Investigación
-        { delay: 3000, step: 2 }, // Borrador base
-        { delay: 2000, step: 3 }, // Refinamiento
-        { delay: 1000, step: 4 }, // Finalización
+        { delay: 0, step: 1 }, // Investigación
+        { delay: 0, step: 2 }, // Borrador base
+        { delay: 0, step: 3 }, // Refinamiento
+        { delay: 0, step: 4 }, // Finalización
       ]
 
       for (const { delay, step } of steps) {
