@@ -45,7 +45,7 @@ async function researchWithGemini(topic: string, settings: GenerationSettings): 
     const { formatted: currentDate, year: currentYear } = getCurrentDateInSpanish();
 
     const result = await generateText({
-      model: google("gemini-1.5-pro"),
+      model: google("gemini-2.0-flash"),
       prompt: `Hoy es ${currentDate}. Realiza una investigación exhaustiva sobre "${topic}" en el contexto jurídico mexicano, especialmente aplicable a la Ciudad de México (Por ningun motivo inventes información). Identifica:
 - Legislación vigente (federal y local) relacionada.
 - Iniciativas previas sobre el tema (si existen).
