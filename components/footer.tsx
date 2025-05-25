@@ -43,14 +43,13 @@ export function Footer() {
             <h3 className="font-medium text-gray-800 mb-4">Contacto</h3>
             <ul className="space-y-2 text-sm">
               <li className="text-gray-600">
-                <strong>Email:</strong> contacto@legislabot.mx
+                <strong>Email:</strong> ----
               </li>
               <li className="text-gray-600">
-                <strong>Teléfono:</strong> (55) 1234-5678
+                <strong>Teléfono:</strong> (--) ---- ----
               </li>
               <li className="text-gray-600">
-                <strong>Dirección:</strong> Congreso de la Ciudad de México, Plaza de la Constitución 7, Centro,
-                Cuauhtémoc, 06000 Ciudad de México, CDMX
+                <strong>Dirección:</strong> ---------------------
               </li>
             </ul>
           </div>

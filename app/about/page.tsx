@@ -96,22 +96,22 @@ export default function AboutPage() {
                     <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center">
                       <Cpu className="h-10 w-10 text-gray-500" />
                     </div>
-                    <h3 className="font-medium">Ingeniero en IA</h3>
-                    <p className="text-sm text-gray-600">Daniel</p>
+                    <h3 className="font-medium">Estudiante de Ingeniería en IA</h3>
+                    <p className="text-sm text-gray-600">Daniel Rodríguez Carreón - Técnico en Programación</p>
                   </div>
                   <div className="text-center">
                     <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center">
                       <Cpu className="h-10 w-10 text-gray-500" />
                     </div>
-                    <h3 className="font-medium">Ingeniero en IA</h3>
-                    <p className="text-sm text-gray-600">Fercho</p>
+                    <h3 className="font-medium">Estudiante de Ingeniería en IA</h3>
+                    <p className="text-sm text-gray-600">Fernando Ramírez Franco - Técnico en Telecomunicaciones</p>
                   </div>
                   <div className="text-center">
                     <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center">
                       <Cpu className="h-10 w-10 text-gray-500" />
                     </div>
-                    <h3 className="font-medium">Ingeniero en IA</h3>
-                    <p className="text-sm text-gray-600">Isaac</p>
+                    <h3 className="font-medium">Estudiante de Ingeniería en IA</h3>
+                    <p className="text-sm text-gray-600">Isaac Hillel Mendoza Hernández - Técnico en Informática</p>
                   </div>
                 </div>
               </CardContent>
