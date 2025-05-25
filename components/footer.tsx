@@ -30,11 +30,6 @@ export function Footer() {
                   Proyectos de Ley
                 </Link>
               </li>
-              <li>
-                <Link href="/examples" className="text-gray-600 hover:text-emerald-600">
-                  Ejemplos
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -43,7 +38,7 @@ export function Footer() {
             <h3 className="font-medium text-gray-800 mb-4">Contacto</h3>
             <ul className="space-y-2 text-sm">
               <li className="text-gray-600">
-                <strong>Email:</strong> ----
+                <strong>Email:</strong> drodriguezc1905@alumno.ipn.mx
               </li>
               <li className="text-gray-600">
                 <strong>Teléfono:</strong> (--) ---- ----

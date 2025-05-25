@@ -128,14 +128,13 @@ export default function AboutPage() {
                 </p>
                 <div className="space-y-2 text-gray-600">
                   <p>
-                    <strong>Email:</strong> contacto@legislabot.mx
+                    <strong>Email:</strong> drodriguezc1905@alumno.ipn.mx
                   </p>
                   <p>
-                    <strong>Teléfono:</strong> (55) 1234-5678
+                    <strong>Teléfono:</strong> (--) ---- ----
                   </p>
                   <p>
-                    <strong>Dirección:</strong> Congreso de la Ciudad de México, Plaza de la Constitución 7, Centro,
-                    Cuauhtémoc, 06000 Ciudad de México, CDMX
+                    <strong>Dirección:</strong> ---------------------
                   </p>
                 </div>
               </CardContent>
