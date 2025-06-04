@@ -94,23 +94,23 @@ async function generateDraftWithGPT4(context: string, topic: string, settings: G
       2. EXPOSICIÓN DE MOTIVOS (considerandos)
       3. ARTICULADO (con numeración y formato legal adecuado)
       4. DISPOSICIONES TRANSITORIAS
-      
-      El proyecto debe ser técnicamente sólido, jurídicamente viable y seguir el formato oficial de los proyectos de ley en México.`,
+      5. REFERENCIAS
+      El proyecto debe ser técnicamente sólido, jurídicamente viable y seguir el formato oficial de los proyectos de ley en México.
+      Redacta con lenguaje técnico-jurídico formal, sin referencias partidistas o ideológicas. El documento debe ser compatible con los principios de legalidad, seguridad jurídica y protección de derechos fundamentales, conforme a la Constitución Política de los Estados Unidos Mexicanos y tratados internacionales firmados por México. No incluyas menciones a actores políticos, partidos o bancadas legislativas.`,
       prompt: `Hoy es ${currentDate}. Eres un experto en derecho constitucional mexicano y nuevas tecnologías. Con base en la siguiente información recopilada (Por ningun motivo inventes información o agregues fuentes que no esten citadas y verificadas):
 ${context}
 
-Genera un borrador extenso de iniciativa de ley nueva (revisa que no exista) para la Ciudad de México con el siguiente formato obligatorio:
+Redacta un proyecto de decreto extenso que expida una ley nueva para la Ciudad de México, cuidando que no exista previamente una legislación igual o sustancialmente similar. El texto debe apegarse a las normas de técnica legislativa mexicana y estructurarse de la siguiente manera, sin utilizar estilo en negritas, cursivas o listas con viñetas:
 
-TÍTULO DE LA INICIATIVA  
+
+TÍTULO DE LA INICIATIVA  (No añadas este texto de título, únicamente el redactado)
 [Redacta un título claro, específico y orientado a la regulación de ${topic}]
 
 EXPOSICIÓN DE MOTIVOS
-Desarrolla clara y de manera extensa los siguientes puntos:
-- Diagnóstico del problema actual relacionado con el uso de IA.
-- Justificación jurídica, social y tecnológica de la iniciativa.
-- Beneficios esperados e impactos económicos, políticos y sociales.
-- Referencias explícitas y citadas adecuadamente de la información proporcionada.
-
+- Apóyate en antecedentes normativos nacionales e internacionales citados explícitamente.
+- Menciona, si aplica, casos recientes (como demandas o litigios relevantes) que hayan evidenciado vacíos legales en el tema abordado.
+- Justifica cómo esta ley evitará o mitiga los efectos adversos documentados del uso indebido de la IA.
+- Explica cómo la ley se alinea con los principios de transparencia, rendición de cuentas y protección de derechos humanos.
 ARTICULADO
 Redacta con claridad jurídica usando el formato:
 - Si la propuesta afecta un solo ordenamiento: ARTÍCULO ÚNICO
@@ -121,6 +121,14 @@ DISPOSICIONES TRANSITORIAS
 Establece plazos realistas y claros para la entrada en vigor, implementación y adaptación institucional.
 
 ${legislatorInfo} ${currentDate} Ciudad de México {/* Include legislator info, date and city*/}
+
+REFERENCIAS
+Incluye las referencias conforme al estilo APPA 7ma edición. Toda fuente utilizada debe:
+- Estar referenciada explícitamente dentro del cuerpo del texto (por ejemplo: “como señala la OCDE (2021)...”).
+- Al final, incluir la lista completa de referencias bajo el epígrafe “REFERENCIAS”, con autor, año, título, fuente, URL (si aplica) y fecha de consulta.
+- Las referencias legislativas deben incluir el nombre exacto del instrumento jurídico, año de publicación, y fuente de consulta oficial.
+- No se permiten referencias genéricas ni inventadas. Si no hay fuente verificable, omite esa parte.
+- Asegúrate de que cada referencia contenga, en su caso, el hipervínculo de consulta directa y la fecha exacta en la que fue consultada.
 
 Tu redacción debe ser clara, técnicamente precisa y jurídicamente impecable, adecuada al marco jurídico mexicano para el periodo ${currentYear}-${currentYear + 5}.
 `,
@@ -165,13 +173,14 @@ Tu revisión debe asegurar rigurosamente:
 3. Claridad en las definiciones técnicas y jurídicas relativas a la inteligencia artificial.
 4. Evaluación crítica y propuesta de ajustes en la viabilidad práctica de su implementación.
 5. Formato formal estrictamente acorde con el modelo oficial (Título, Exposición de Motivos, Articulado, Disposiciones Transitorias).
+6. Mantener las referecias en formato APPA 7ma edición correctamente citadas en la exposición de motivos.
 
       El borrador a revisar es el siguiente:
 
       
       ${draft}
       
-      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, mejorado y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro y preciso, listo para su presentación ante el Congreso de la Ciudad de México.`,
+      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, mejorado y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro y preciso, listo para su presentación ante el Congreso de la Ciudad de México manteniendo las referencias utilizadas.`,
       temperature: 0.1,
       maxTokens: settings.maxTokensPerRequest ?? undefined, // Use setting
     });
