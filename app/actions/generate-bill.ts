@@ -45,7 +45,7 @@ async function researchWithGemini(topic: string, settings: GenerationSettings): 
     const { formatted: currentDate, year: currentYear } = getCurrentDateInSpanish();
 
     const result = await generateText({
-      model: google("gemini-2.0-flash"),
+      model: google("gemini-1.5-flash"), // Changed to 1.5-flash for potentially faster research
       prompt: `Hoy es ${currentDate}. Realiza una investigación exhaustiva sobre "${topic}" en el contexto jurídico mexicano, especialmente aplicable a la Ciudad de México (Por ningun motivo inventes información). Identifica:
 - Legislación vigente (federal y local) relacionada.
 - Iniciativas previas sobre el tema (si existen).
@@ -59,19 +59,16 @@ Organiza tu respuesta claramente en secciones tituladas y formatea la respuesta 
 - Breve resumen
 - Relevancia específica para fundamentar un proyecto de ley sobre ${topic} en la Ciudad de México, periodo ${currentYear}-${currentYear + 5}.`,
       temperature: 0.3,
-      maxTokens: settings.maxTokensPerRequest ?? undefined, // Use setting
+      maxTokens: settings.maxTokensPerRequest ?? 4096, // Example: set a reasonable max for research
     });
 
-    // Log API usage if enabled
     if (settings.enableApiUsageTracking) {
       await logApiUsage({
-        apiName: "google/gemini-1.5-pro",
+        apiName: "google/gemini-1.5-flash",
         tokensUsed: result.usage.totalTokens,
         requestType: "research",
-        // costEstimate: calculateCost(result.usage, "gemini-1.5-pro") // Optional: Implement cost calculation
       });
     }
-
     return result.text;
   } catch (error) {
     console.error("Error en la investigación con Gemini:", error);
@@ -133,10 +130,9 @@ Incluye las referencias conforme al estilo APPA 7ma edición. Toda fuente utiliz
 Tu redacción debe ser clara, técnicamente precisa y jurídicamente impecable, adecuada al marco jurídico mexicano para el periodo ${currentYear}-${currentYear + 5}.
 `,
       temperature: 0.2,
-      maxTokens: settings.maxTokensPerRequest ?? undefined,
+      maxTokens: settings.maxTokensPerRequest ?? 8192, // Example: set a reasonable max for draft
     });
 
-    // Log API usage if enabled
     if (settings.enableApiUsageTracking) {
       await logApiUsage({
         apiName: "openai/gpt-4o",
@@ -144,7 +140,6 @@ Tu redacción debe ser clara, técnicamente precisa y jurídicamente impecable, 
         requestType: "draft_generation",
       });
     }
-
     return result.text;
   } catch (error) {
     console.error("Error en la generación del borrador con GPT-4:", error);
@@ -152,7 +147,6 @@ Tu redacción debe ser clara, técnicamente precisa y jurídicamente impecable, 
   }
 }
 
-// Función para refinar legalmente el borrador
 async function refineLegalDraft(draft: string, settings: GenerationSettings): Promise<string> {
   try {
     checkRequiredApiKeys();
@@ -182,10 +176,9 @@ Tu revisión debe asegurar rigurosamente:
       
       Mantén la estructura original, pero realiza ajustes significativos para perfeccionar el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, mejorado y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro y preciso, listo para su presentación ante el Congreso de la Ciudad de México manteniendo las referencias utilizadas.`,
       temperature: 0.1,
-      maxTokens: settings.maxTokensPerRequest ?? undefined, // Use setting
+      maxTokens: settings.maxTokensPerRequest ?? 8192, // Example: set a reasonable max for refinement
     });
 
-    // Log API usage if enabled
     if (settings.enableApiUsageTracking) {
       await logApiUsage({
         apiName: "openai/gpt-4o",
@@ -193,7 +186,6 @@ Tu revisión debe asegurar rigurosamente:
         requestType: "refinement",
       });
     }
-
     return result.text;
   } catch (error) {
     console.error("Error en el refinamiento legal:", error);
@@ -201,24 +193,52 @@ Tu revisión debe asegurar rigurosamente:
   }
 }
 
-// Función principal que orquesta todo el proceso
-export async function generateBill(topic: string): Promise<string> {
+export type GenerationStage = 'research' | 'draft' | 'refine';
+
+interface ProcessStepArgs {
+  stage: GenerationStage;
+  topic: string;
+  inputData?: string; // For 'draft' stage, this is researchContext. For 'refine' stage, this is initialDraft.
+}
+
+export async function processGenerationStep(args: ProcessStepArgs): Promise<string> {
+  const { stage, topic, inputData } = args;
+
   try {
-    // Obtener configuraciones relevantes
     const settings = await getRelevantSettings();
 
-    // Paso 1: Investigación previa con Gemini
-    const researchContext = await researchWithGemini(topic, settings);
-
-    // Paso 2: Generar borrador base con GPT-4
-    const initialDraft = await generateDraftWithGPT4(researchContext, topic, settings);
-
-    // Paso 3: Refinamiento legal
-    const finalBill = await refineLegalDraft(initialDraft, settings);
-
-    return finalBill;
+    switch (stage) {
+      case 'research':
+        return await researchWithGemini(topic, settings);
+      case 'draft':
+        if (!inputData) {
+          throw new Error("Input data (research context) is required for drafting stage.");
+        }
+        return await generateDraftWithGPT4(inputData, topic, settings);
+      case 'refine':
+        if (!inputData) {
+          throw new Error("Input data (initial draft) is required for refinement stage.");
+        }
+        return await refineLegalDraft(inputData, settings);
+      default:
+        throw new Error("Invalid generation stage provided.");
+    }
   } catch (error) {
-    console.error("Error en el proceso de generación del proyecto de ley:", error);
-    throw new Error(`Error al generar el proyecto de ley: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`Error in processGenerationStep (stage: ${stage}):`, error);
+    throw new Error(`Error durante la etapa '${stage}': ${error instanceof Error ? error.message : String(error)}`);
   }
 }
+
+// The original generateBill function is removed or commented out
+// export async function generateBill(topic: string): Promise<string> {
+//   try {
+//     const settings = await getRelevantSettings();
+//     const researchContext = await researchWithGemini(topic, settings);
+//     const initialDraft = await generateDraftWithGPT4(researchContext, topic, settings);
+//     const finalBill = await refineLegalDraft(initialDraft, settings);
+//     return finalBill;
+//   } catch (error) {
+//     console.error("Error en el proceso de generación del proyecto de ley:", error);
+//     throw new Error(`Error al generar el proyecto de ley: ${error instanceof Error ? error.message : String(error)}`);
+//   }
+// }
