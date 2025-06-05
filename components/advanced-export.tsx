@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 
 interface AdvancedExportProps {
   billContent: string
@@ -57,37 +59,238 @@ export function AdvancedExport({ billContent, title }: AdvancedExportProps) {
     setIsGenerating(true)
     setProgress(0)
 
-    // Simulación del proceso de generación
-    for (let i = 0; i <= 100; i += 10) {
-      await new Promise((resolve) => setTimeout(resolve, 200))
-      setProgress(i)
-    }
+    try {
+      // Iniciar progreso
+      let progressValue = 0;
+      const progressInterval = setInterval(() => {
+        progressValue += 5;
+        if (progressValue <= 90) {
+          setProgress(progressValue);
+        }
+      }, 100);
 
-    // En una implementación real, aquí se generaría el documento usando una biblioteca como jsPDF, pdfmake o una API
-    // También se podría enviar los datos al servidor para generar el documento
+      let fileUrl;
+      let fileName;
 
-    // Simular la descarga de un archivo
-    setTimeout(() => {
-      const extension = settings.format
-      const blob = new Blob([billContent], { type: getContentType(settings.format) })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `proyecto-de-ley.${extension}`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      // Generar documento según el formato seleccionado
+      if (settings.format === "pdf") {
+        setProgress(30);
+        const { url, name } = await generatePDF();
+        fileUrl = url;
+        fileName = name;
+      } else if (settings.format === "docx") {
+        setProgress(30);
+        const { url, name } = await generateDOCX();
+        fileUrl = url;
+        fileName = name;
+      } else {
+        // Texto plano (TXT)
+        const blob = new Blob([billContent], { type: "text/plain" });
+        fileUrl = URL.createObjectURL(blob);
+        fileName = "proyecto-de-ley.txt";
+      }
 
-      setIsGenerating(false)
-      setIsOpen(false)
+      setProgress(95);
 
+      // Descargar el archivo
+      const a = document.createElement("a");
+      a.href = fileUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Limpiar
+      if (settings.format !== "txt") {
+        URL.revokeObjectURL(fileUrl);
+      }
+
+      clearInterval(progressInterval);
+      setProgress(100);
+
+      setTimeout(() => {
+        setIsGenerating(false);
+        setIsOpen(false);
+        toast({
+          title: "Documento exportado",
+          description: `El proyecto de ley ha sido exportado en formato ${settings.format.toUpperCase()}.`,
+        });
+      }, 500);
+    } catch (error) {
+      console.error("Error al generar el documento:", error);
       toast({
-        title: "Documento exportado",
-        description: `El proyecto de ley ha sido exportado en formato ${settings.format.toUpperCase()}.`,
-      })
-    }, 500)
-  }
+        title: "Error al exportar",
+        description: "Ocurrió un error al generar el documento. Inténtalo de nuevo.",
+        variant: "destructive",
+      });
+      setIsGenerating(false);
+    }
+  };
+
+  // Función para generar PDF con jsPDF
+  const generatePDF = async () => {
+    return new Promise<{ url: string, name: string }>((resolve) => {
+      // Crear el documento PDF
+      const doc = new jsPDF({
+        orientation: settings.orientation,
+        unit: 'mm',
+        format: 'letter'
+      });
+
+      // Márgenes según el template
+      const marginLeft = settings.template === "official" ? 30 : 20;
+      const marginRight = settings.template === "official" ? 30 : 20;
+      const marginTop = settings.template === "official" ? 25 : 20;
+      const marginBottom = settings.template === "official" ? 25 : 20;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const textWidth = pageWidth - marginLeft - marginRight;
+
+      // Configurar metadatos
+      doc.setProperties({
+        title: title,
+        subject: 'Proyecto de Ley',
+        author: 'LegislaBot',
+        creator: 'LegislaBot PDF Generator'
+      });
+
+      // Configurar fuente según tamaño seleccionado
+      const fontSize = settings.fontSize === "small" ? 10 : settings.fontSize === "large" ? 14 : 12;
+      doc.setFontSize(fontSize);
+
+      let yPosition = marginTop;
+
+      // Agregar encabezado si está habilitado
+      if (settings.includeHeader) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text(settings.headerText, pageWidth / 2, marginTop - 10, { align: 'center' });
+        doc.line(marginLeft, marginTop - 5, pageWidth - marginRight, marginTop - 5);
+        yPosition += 5;
+      }
+
+      // Si es template oficial, agregar encabezado de CDMX
+      if (settings.template === "official") {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('CONGRESO DE LA CIUDAD DE MÉXICO', pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 10;
+
+        doc.setFontSize(12);
+        doc.text('DECRETO', pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 12;
+      }
+
+      // Título
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(fontSize + 2);
+      doc.text(title.toUpperCase(), pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += fontSize * 2;
+
+      // Contenido
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(fontSize);
+
+      const lineHeight = fontSize * 0.5;
+
+      // Marca de agua
+      if (settings.includeWatermark) {
+        doc.setTextColor(220, 220, 220);
+        doc.setFontSize(40);
+        doc.setFont('helvetica', 'bold');
+        doc.text('BORRADOR', pageWidth / 2, pageHeight / 2, {
+          align: 'center',
+          angle: 45
+        });
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(fontSize);
+        doc.setFont('helvetica', 'normal');
+      }
+
+      // Contenido principal
+      const sections = billContent.split(/\n\s*\n/);
+      for (const section of sections) {
+        if (!section.trim()) continue;
+        const lines = doc.splitTextToSize(section.trim(), textWidth);
+        for (const line of lines) {
+          if (yPosition + lineHeight > pageHeight - marginBottom) {
+            doc.addPage();
+            yPosition = marginTop;
+
+            // Agregar encabezado en nueva página si está habilitado
+            if (settings.includeHeader) {
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(10);
+              doc.text(settings.headerText, pageWidth / 2, marginTop - 10, { align: 'center' });
+              doc.line(marginLeft, marginTop - 5, pageWidth - marginRight, marginTop - 5);
+              yPosition += 5;
+            }
+
+            // Marca de agua en nueva página
+            if (settings.includeWatermark) {
+              doc.setTextColor(220, 220, 220);
+              doc.setFontSize(40);
+              doc.setFont('helvetica', 'bold');
+              doc.text('BORRADOR', pageWidth / 2, pageHeight / 2, {
+                align: 'center',
+                angle: 45
+              });
+              doc.setTextColor(0, 0, 0);
+              doc.setFontSize(fontSize);
+              doc.setFont('helvetica', 'normal');
+            }
+          }
+          doc.text(line, marginLeft, yPosition);
+          yPosition += lineHeight;
+        }
+        yPosition += lineHeight * 2; // Doble espacio entre párrafos
+      }
+
+      // Pie de página y numeración de páginas
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+
+        if (settings.includeFooter) {
+          doc.text(settings.footerText, pageWidth / 2, pageHeight - 10, { align: "center" });
+        }
+
+        if (settings.includePageNumbers) {
+          doc.text(`Página ${i} de ${pageCount}`, pageWidth - marginRight, pageHeight - 10, { align: "right" });
+        }
+      }
+
+      // Guardar y resolver
+      const blob = doc.output('blob');
+      const url = URL.createObjectURL(blob);
+      resolve({ url, name: 'proyecto-de-ley.pdf' });
+    });
+  };
+
+  // Función para generar DOCX (texto plano con formato DOCX por ahora)
+  const generateDOCX = async () => {
+    return new Promise<{ url: string, name: string }>((resolve) => {
+      // Crear contenido en formato XML de Word (simplificado)
+      let docContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+        <head>
+          <meta charset="utf-8">
+          <title>${title}</title>
+        </head>
+        <body>
+          <h1 style="text-align:center;">${title}</h1>
+          ${billContent.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}
+        </body>
+        </html>
+      `;
+
+      // Crear Blob con el contenido
+      const blob = new Blob([docContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const url = URL.createObjectURL(blob);
+      resolve({ url, name: 'proyecto-de-ley.docx' });
+    });
+  };
 
   const getContentType = (format: string) => {
     switch (format) {
@@ -149,17 +352,15 @@ export function AdvancedExport({ billContent, title }: AdvancedExportProps) {
                 )}
 
                 <h1
-                  className={`text-center font-bold mb-6 ${
-                    settings.fontSize === "small" ? "text-lg" : settings.fontSize === "large" ? "text-2xl" : "text-xl"
-                  }`}
+                  className={`text-center font-bold mb-6 ${settings.fontSize === "small" ? "text-lg" : settings.fontSize === "large" ? "text-2xl" : "text-xl"
+                    }`}
                 >
                   {title}
                 </h1>
 
                 <div
-                  className={`text-justify ${
-                    settings.fontSize === "small" ? "text-sm" : settings.fontSize === "large" ? "text-lg" : "text-base"
-                  }`}
+                  className={`text-justify ${settings.fontSize === "small" ? "text-sm" : settings.fontSize === "large" ? "text-lg" : "text-base"
+                    }`}
                 >
                   {billContent.split("\n\n").map((paragraph, index) => (
                     <p key={index} className="mb-4">

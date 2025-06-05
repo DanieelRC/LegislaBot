@@ -45,11 +45,14 @@ export function PdfGenerator({ billContent, title }: PdfGeneratorProps) {
         format: 'letter'
       });
 
-      // Definir márgenes
-      const margin = 20;
+      // Márgenes oficiales
+      const marginLeft = 30; // 3cm
+      const marginRight = 30;
+      const marginTop = 25; // 2.5cm
+      const marginBottom = 25;
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      const textWidth = pageWidth - (margin * 2);
+      const textWidth = pageWidth - marginLeft - marginRight;
 
       // Configurar metadatos
       doc.setProperties({
@@ -59,59 +62,52 @@ export function PdfGenerator({ billContent, title }: PdfGeneratorProps) {
         creator: 'LegislaBot PDF Generator'
       });
 
-      // Usar fuente helvetica (similar a Arial)
-      doc.setFont('helvetica', 'normal');
+      // Encabezado oficial (puedes agregar imagen si tienes base64)
+      // doc.addImage(escudoCDMX, 'PNG', marginLeft, marginTop - 15, 20, 20);
 
-      // Añadir título centrado
-      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text(title, pageWidth / 2, margin, { align: 'center' });
+      doc.setFontSize(14);
+      doc.text('CONGRESO DE LA CIUDAD DE MÉXICO', pageWidth / 2, marginTop, { align: 'center' });
 
-      // Establecer fuente para el contenido
       doc.setFontSize(12);
+      doc.text('DECRETO', pageWidth / 2, marginTop + 10, { align: 'center' });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text(title.toUpperCase(), pageWidth / 2, marginTop + 22, { align: 'center' });
+
       doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
 
-      // … dentro de generatePDF(), reemplaza el bucle for de secciones por esto:
+      let yPosition = marginTop + 35;
+      const lineHeight = 7.5; // 1.5 interlineado para 12pt
 
-      // Separar en párrafos
-      const sections = billContent.split("\n\n")
-      let yPosition = margin + 15
-      const lineHeight = doc.getLineHeightFactor() * doc.getFontSize()
-
+      // Separar en párrafos dobles
+      const sections = billContent.split(/\n\s*\n/);
       for (const section of sections) {
-        if (!section.trim()) continue
-
-        // Ajustar líneas al ancho
-        const lines = doc.splitTextToSize(section, textWidth)
-
+        if (!section.trim()) continue;
+        const lines = doc.splitTextToSize(section.trim(), textWidth);
         for (const line of lines) {
-          // Nueva página si nos pasamos del margen inferior
-          if (yPosition + lineHeight > pageHeight - margin) {
-            doc.addPage()
-            yPosition = margin
+          if (yPosition + lineHeight > pageHeight - marginBottom) {
+            doc.addPage();
+            yPosition = marginTop;
           }
-          doc.text(line, margin, yPosition)
-          yPosition += lineHeight
+          doc.text(line, marginLeft, yPosition);
+          yPosition += lineHeight;
         }
-
-        // Espacio extra entre párrafos
-        yPosition += lineHeight
+        yPosition += lineHeight * 2; // Doble espacio entre párrafos
       }
 
-      // Numerar páginas…
-      const pageCount = doc.getNumberOfPages()
+      // Numerar páginas
+      const pageCount = doc.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i)
-        doc.setFontSize(10)
-        doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 10, {
-          align: "center",
-        })
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: "center" });
       }
-      // Asegurar que el progreso llegue al 100%
-      setProgress(100);
 
-      // Descargar el PDF
-      doc.save('proyecto-de-ley.pdf');
+      setProgress(100);
+      doc.save('decreto-legislativo-cdmx.pdf');
 
       // Limpiar y cerrar
       clearInterval(progressInterval);

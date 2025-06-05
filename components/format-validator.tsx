@@ -22,50 +22,52 @@ export function FormatValidator({ billContent }: FormatValidatorProps) {
   const validateFormat = () => {
     setIsValidating(true)
 
-    // Simulación de validación
     setTimeout(() => {
-      const sections = billContent.split(/\n\n+/)
+      const sections = billContent.split(/\n\s*\n+/)
       const issues: string[] = []
       const suggestions: string[] = []
 
-      // Validar título
-      const titleIndex = sections.findIndex((s) => s.trim().toUpperCase() === s.trim())
-      if (titleIndex === -1) {
-        issues.push("No se encontró un título en mayúsculas")
-        suggestions.push("Añade un título en mayúsculas al inicio del documento")
+      // Validar título (primera línea/sección, mayúsculas, no debe ser encabezado)
+      const firstSection = sections[0]?.trim() || ""
+      if (
+        !firstSection ||
+        firstSection.length < 8 ||
+        firstSection !== firstSection.toUpperCase() ||
+        firstSection.includes("EXPOSICIÓN DE MOTIVOS") ||
+        firstSection.includes("PROPUESTA")
+      ) {
+        issues.push("El título principal no está correctamente en mayúsculas o no está al inicio.")
+        suggestions.push("Asegúrate de que el título esté en la primera línea/sección, en mayúsculas y sin encabezados adicionales.")
       }
 
-      // Validar exposición de motivos
-      const expositionIndex = sections.findIndex((s) => s.includes("EXPOSICIÓN DE MOTIVOS"))
+      // Validar encabezado 'EXPOSICIÓN DE MOTIVOS' (en mayúsculas)
+      const expositionIndex = sections.findIndex((s) => s.trim() === "EXPOSICIÓN DE MOTIVOS")
       if (expositionIndex === -1) {
-        issues.push("No se encontró la sección 'EXPOSICIÓN DE MOTIVOS'")
-        suggestions.push("Añade una sección 'EXPOSICIÓN DE MOTIVOS' después del título")
+        issues.push("No se encontró el encabezado 'EXPOSICIÓN DE MOTIVOS' en mayúsculas.")
+        suggestions.push("Añade 'EXPOSICIÓN DE MOTIVOS' (en mayúsculas) después del título.")
       }
 
-      // Validar propuesta
-      const proposalIndex = sections.findIndex((s) => s.includes("PROPUESTA"))
+      // Validar encabezado 'PROPUESTA' (en mayúsculas)
+      const proposalIndex = sections.findIndex((s) => s.trim() === "PROPUESTA")
       if (proposalIndex === -1) {
-        issues.push("No se encontró la sección 'PROPUESTA'")
-        suggestions.push("Añade una sección 'PROPUESTA' después de la exposición de motivos")
+        issues.push("No se encontró el encabezado 'PROPUESTA' en mayúsculas.")
+        suggestions.push("Añade 'PROPUESTA' (en mayúsculas) después de la exposición de motivos.")
       } else {
-        // Validar articulado
-        const proposalText = sections[proposalIndex]
-        if (!proposalText.includes("Artículo")) {
-          issues.push("No se encontró articulado en la sección 'PROPUESTA'")
-          suggestions.push("Añade artículos (Artículo ÚNICO o Artículo PRIMERO, etc.) en la sección 'PROPUESTA'")
+        // Validar que la sección de propuesta contenga al menos un artículo
+        const proposalText = sections.slice(proposalIndex + 1).join("\n")
+        if (!/ART[IÍ]CULO/.test(proposalText)) {
+          issues.push("No se encontró ningún artículo en la sección 'PROPUESTA'.")
+          suggestions.push("Incluye al menos un artículo (ejemplo: 'ARTÍCULO ÚNICO', 'ARTÍCULO PRIMERO', etc.) en la sección 'PROPUESTA'.")
         }
       }
 
-      // Validar lugar, fecha y nombre
-      const lastSection = sections[sections.length - 1]
-      if (
-        !lastSection ||
-        !lastSection.includes("México") ||
-        !/\d{1,2}\s+de\s+[a-zA-Z]+\s+de\s+\d{4}/.test(lastSection)
-      ) {
-        issues.push("No se encontró lugar, fecha y nombre del proponente al final del documento")
+      // Validar lugar, fecha y nombre al final
+      const lastSection = sections[sections.length - 1]?.trim() || ""
+      const fechaRegex = /(ciudad de méxico|méxico),?\s*a\s*\d{1,2}\s+de\s+[a-zA-ZáéíóúÁÉÍÓÚ]+\s+de\s+\d{4},?\s*.+/i
+      if (!fechaRegex.test(lastSection)) {
+        issues.push("No se encontró lugar, fecha y nombre del proponente al final del documento.")
         suggestions.push(
-          "Añade lugar, fecha y nombre del proponente al final del documento (ej: 'Ciudad de México, a 15 de abril de 2024, Dip. Juan Pérez')",
+          "Añade lugar, fecha y nombre del proponente al final (ej: 'Ciudad de México, a 15 de abril de 2024, Dip. Juan Pérez')."
         )
       }
 
