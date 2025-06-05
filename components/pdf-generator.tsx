@@ -72,14 +72,25 @@ export function PdfGenerator({ billContent, title }: PdfGeneratorProps) {
       doc.setFontSize(12);
       doc.text('DECRETO', pageWidth / 2, marginTop + 10, { align: 'center' });
 
+      // Título con ajuste automático de tamaño y líneas
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.text(title.toUpperCase(), pageWidth / 2, marginTop + 22, { align: 'center' });
+      const titleFontSize = title.length > 50 ? 14 : 16; // Reducir tamaño si es muy largo
+      doc.setFontSize(titleFontSize);
+
+      // Dividir el título en líneas para que encaje en el ancho
+      const titleLines = doc.splitTextToSize(title.toUpperCase(), textWidth);
+      let titleYPosition = marginTop + 22;
+
+      // Dibujar cada línea del título centrada
+      for (const line of titleLines) {
+        doc.text(line, pageWidth / 2, titleYPosition, { align: 'center' });
+        titleYPosition += titleFontSize * 0.5;
+      }
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
 
-      let yPosition = marginTop + 35;
+      let yPosition = titleYPosition + 15; // Ajustar la posición inicial según el título
       const lineHeight = 7.5; // 1.5 interlineado para 12pt
 
       // Separar en párrafos dobles
@@ -92,7 +103,8 @@ export function PdfGenerator({ billContent, title }: PdfGeneratorProps) {
             doc.addPage();
             yPosition = marginTop;
           }
-          doc.text(line, marginLeft, yPosition);
+          // Agregar justificación al texto
+          doc.text(line, marginLeft, yPosition, { align: 'justify' });
           yPosition += lineHeight;
         }
         yPosition += lineHeight * 2; // Doble espacio entre párrafos

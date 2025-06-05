@@ -81,7 +81,7 @@ async function generateDraftWithGPT4(context: string, topic: string, settings: G
   try {
     checkRequiredApiKeys();
     const { formatted: currentDate, year: currentYear } = getCurrentDateInSpanish();
-    const legislatorInfo = settings.defaultLegislator ? `Considera que este proyecto podría ser presentado por ${settings.defaultLegislator}.` : 'A QUIEN CORRESPONDA'; // Fallback if no default legislator
+    const legislatorInfo = settings.defaultLegislator || 'A QUIEN CORRESPONDA';
 
     const result = await generateText({
       model: openai("gpt-4o"),
@@ -91,7 +91,7 @@ async function generateDraftWithGPT4(context: string, topic: string, settings: G
       2. EXPOSICIÓN DE MOTIVOS (considerandos) - Esta sección debe ser particularmente detallada, profunda y exhaustiva.
       3. ARTICULADO (con numeración y formato legal adecuado) - Desarrolla un articulado completo, con múltiples capítulos y secciones si es necesario para cubrir el tema a profundidad. Considera todos los aspectos relevantes.
       4. DISPOSICIONES TRANSITORIAS - Detalla las disposiciones necesarias.
-      5. BLOQUE DE FIRMA (Legislador, Lugar y Fecha) - Justo antes de las Referencias.
+      5. FIRMA - Solo incluye "Ciudad de México, [fecha]" y el nombre del legislador sin títulos adicionales.
       6. REFERENCIAS - Asegúrate de que sean completas y bien formateadas.
       El proyecto debe ser técnicamente sólido, jurídicamente viable y seguir el formato oficial de los proyectos de ley en México.
       Redacta con lenguaje técnico-jurídico formal, sin referencias partidistas o ideológicas. El documento debe ser compatible con los principios de legalidad, seguridad jurídica y protección de derechos fundamentales, conforme a la Constitución Política de los Estados Unidos Mexicanos y tratados internacionales firmados por México. No incluyas menciones a actores políticos, partidos o bancadas legislativas. Prioriza la exhaustividad y profundidad del contenido.`,
@@ -118,13 +118,8 @@ Define cada término técnico relacionado con la IA de manera clara y precisa. D
 
 DISPOSICIONES TRANSITORIAS
 Establece plazos realistas y claros para la entrada en vigor, implementación progresiva, y adaptación institucional, detallando los pasos necesarios.
-
-Dado en el Salón de Sesiones del Congreso de la Ciudad de México, a los ${currentDate}.
-
+Ciudad de México, ${currentDate}.
 ${legislatorInfo}
-Diputado/a (o el cargo correspondiente)
-
-(Este bloque anterior con el lugar, fecha y legislador DEBE estar presente ANTES de la sección de REFERENCIAS)
 
 REFERENCIAS
 Incluye las referencias conforme al estilo APPA 7ma edición. Toda fuente utilizada debe:
@@ -158,9 +153,8 @@ Tu redacción debe ser clara, técnicamente precisa, jurídicamente impecable y,
 async function refineLegalDraft(draft: string, settings: GenerationSettings): Promise<string> {
   try {
     checkRequiredApiKeys();
-    const { formatted: currentDate } = getCurrentDateInSpanish(); // Get current date for potential use if missing
-    const legislatorInfo = settings.defaultLegislator ? `${settings.defaultLegislator}\nDiputado/a (o el cargo correspondiente)` : 'A QUIEN CORRESPONDA\nDiputado/a (o el cargo correspondiente)';
-
+    const { formatted: currentDate } = getCurrentDateInSpanish();
+    const legislatorInfo = settings.defaultLegislator || 'A QUIEN CORRESPONDA';
 
     const result = await generateText({
       model: openai("gpt-4o"),
@@ -173,7 +167,7 @@ async function refineLegalDraft(draft: string, settings: GenerationSettings): Pr
       5. Estilo jurídico formal adecuado, ELEVANDO la calidad del texto.
       6. PROFUNDIZAR Y AMPLIAR el contenido existente, añadiendo análisis, ejemplos y justificaciones donde sea pertinente para lograr un documento MÁS COMPLETO Y ROBUSTO.
       7. CRÍTICO: Asegurar que TODAS las afirmaciones basadas en fuentes externas en la Exposición de Motivos y otras secciones estén CORRECTAMENTE CITADAS en el texto (ej. Apellido, Año) y que estas citas correspondan a la lista de REFERENCIAS. Preservar las citas existentes del borrador y añadir nuevas si se introduce nueva información referenciada.
-      8. PRESERVAR EL BLOQUE DE FIRMA: Asegúrate de que el bloque que incluye el lugar ("Dado en el Salón de Sesiones del Congreso de la Ciudad de México..."), la fecha, y la información del legislador proponente se mantenga intacto y correctamente posicionado justo ANTES de la sección de REFERENCIAS. Si este bloque falta, añádelo usando la fecha actual y la información del legislador proporcionada.`,
+      8. PRESERVAR EL BLOQUE DE FIRMA: Asegúrate de que el bloque que incluye "Ciudad de México, [fecha]" y el nombre del legislador se mantenga intacto y correctamente posicionado justo ANTES de la sección de REFERENCIAS. Si este bloque falta, añádelo usando la fecha actual y la información del legislador proporcionada. NO incluyas frases como "Dado en el Salón de Sesiones" ni títulos como "Diputado/a".`,
       prompt: `Como experto legal especializado en regulación tecnológica y derecho constitucional mexicano, revisa, MEJORA SUSTANCIALMENTE, EXPANDE SIGNIFICATIVAMENTE (agregando información relevante, análisis más profundos, y usando lenguaje especializado y detallado) y corrige el siguiente borrador de iniciativa de ley para la Ciudad de México. El objetivo es transformarlo en un documento legislativo mucho más extenso, detallado y robusto.
 
 Tu revisión debe asegurar rigurosamente:
@@ -184,7 +178,7 @@ Tu revisión debe asegurar rigurosamente:
 5. Formato formal estrictamente acorde con el modelo oficial (Título, Exposición de Motivos, Articulado, Disposiciones Transitorias, Bloque de Firma, Referencias).
 6. MANTENIMIENTO Y CORRECTA INTEGRACIÓN DE CITAS: Las referencias en formato APA 7ma edición deben estar correctamente citadas DENTRO del texto de la Exposición de Motivos (ejemplo: (Autor, Año, p. X)). ES FUNDAMENTAL que todas las fuentes listadas en la sección REFERENCIAS que respalden afirmaciones en la Exposición de Motivos sean explícitamente citadas en el cuerpo del texto. PRESERVA las citas existentes del borrador original y ASEGÚRATE de que cualquier nueva información o expansión que introduzcas y que provenga de una fuente esté debidamente citada en el texto. Si añades referencias nuevas, cítalas apropiadamente.
 7. EXPANDIR cada sección, especialmente la Exposición de Motivos y el Articulado, para cubrir todos los ángulos posibles del tema, añadir más detalle, justificaciones más elaboradas y un análisis más profundo.
-8. BLOQUE DE FIRMA: Verifica que el bloque "Dado en el Salón de Sesiones del Congreso de la Ciudad de México, a los [Fecha].\n\n[Nombre del Legislador/Grupo Parlamentario]\nDiputado/a (o cargo)" esté presente y correctamente ubicado ANTES de la sección de REFERENCIAS. Si no está, insértalo usando la fecha actual (${currentDate}) y la información del legislador: ${legislatorInfo}.
+8. FIRMA: Verifica que el bloque solo incluya "Ciudad de México, [fecha]" y el nombre del legislador (sin títulos como "Diputado/a"), ubicado ANTES de la sección de REFERENCIAS. Si no está, insértalo usando la fecha actual (${currentDate}) y solo el nombre: ${legislatorInfo}.
 
       El borrador a revisar es el siguiente:
 

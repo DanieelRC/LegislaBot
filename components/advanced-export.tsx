@@ -268,28 +268,33 @@ export function AdvancedExport({ billContent, title }: AdvancedExportProps) {
     });
   };
 
-  // Función para generar DOCX (texto plano con formato DOCX por ahora)
+  // Función para generar DOCX (usaremos .doc basado en HTML para compatibilidad)
   const generateDOCX = async () => {
-    return new Promise<{ url: string, name: string }>((resolve) => {
-      // Crear contenido en formato XML de Word (simplificado)
-      let docContent = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+    return new Promise<{ url: string; name: string }>((resolve) => {
+      // HTML que Word puede abrir como .doc
+      const docContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+              xmlns:w='urn:schemas-microsoft-com:office:word'>
         <head>
           <meta charset="utf-8">
           <title>${title}</title>
         </head>
         <body>
           <h1 style="text-align:center;">${title}</h1>
-          ${billContent.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}
+          ${billContent
+          .split('\n\n')
+          .map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`)
+          .join('')}
         </body>
         </html>
-      `;
-
-      // Crear Blob con el contenido
-      const blob = new Blob([docContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      const url = URL.createObjectURL(blob);
-      resolve({ url, name: 'proyecto-de-ley.docx' });
-    });
+      `
+      // Prepend BOM para evitar problemas de codificación
+      const blob = new Blob(['\ufeff', docContent], {
+        type: 'application/msword'
+      })
+      const url = URL.createObjectURL(blob)
+      resolve({ url, name: 'proyecto-de-ley.doc' })
+    })
   };
 
   const getContentType = (format: string) => {
