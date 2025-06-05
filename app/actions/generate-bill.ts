@@ -59,7 +59,7 @@ Organiza tu respuesta claramente en secciones tituladas y formatea la respuesta 
 - Breve resumen
 - Relevancia específica para fundamentar un proyecto de ley sobre ${topic} en la Ciudad de México, periodo ${currentYear}-${currentYear + 5}.`,
       temperature: 0.3,
-      maxTokens: settings.maxTokensPerRequest ?? 4096, // Example: set a reasonable max for research
+      maxTokens: settings.maxTokensPerRequest ?? 4096, // Keeping research at 4096
     });
 
     if (settings.enableApiUsageTracking) {
@@ -86,36 +86,37 @@ async function generateDraftWithGPT4(context: string, topic: string, settings: G
     const result = await generateText({
       model: openai("gpt-4o"),
       system: `Eres un asistente legal especializado en la redacción de proyectos de ley para la Ciudad de México.
-      Debes generar un proyecto de ley completo con la siguiente estructura:
+      Debes generar un proyecto de ley completo y MUY EXTENSO con la siguiente estructura:
       1. TÍTULO DEL PROYECTO DE LEY
-      2. EXPOSICIÓN DE MOTIVOS (considerandos)
-      3. ARTICULADO (con numeración y formato legal adecuado)
-      4. DISPOSICIONES TRANSITORIAS
-      5. REFERENCIAS
+      2. EXPOSICIÓN DE MOTIVOS (considerandos) - Esta sección debe ser particularmente detallada, profunda y exhaustiva.
+      3. ARTICULADO (con numeración y formato legal adecuado) - Desarrolla un articulado completo, con múltiples capítulos y secciones si es necesario para cubrir el tema a profundidad. Considera todos los aspectos relevantes.
+      4. DISPOSICIONES TRANSITORIAS - Detalla las disposiciones necesarias.
+      5. REFERENCIAS - Asegúrate de que sean completas y bien formateadas.
       El proyecto debe ser técnicamente sólido, jurídicamente viable y seguir el formato oficial de los proyectos de ley en México.
-      Redacta con lenguaje técnico-jurídico formal, sin referencias partidistas o ideológicas. El documento debe ser compatible con los principios de legalidad, seguridad jurídica y protección de derechos fundamentales, conforme a la Constitución Política de los Estados Unidos Mexicanos y tratados internacionales firmados por México. No incluyas menciones a actores políticos, partidos o bancadas legislativas.`,
+      Redacta con lenguaje técnico-jurídico formal, sin referencias partidistas o ideológicas. El documento debe ser compatible con los principios de legalidad, seguridad jurídica y protección de derechos fundamentales, conforme a la Constitución Política de los Estados Unidos Mexicanos y tratados internacionales firmados por México. No incluyas menciones a actores políticos, partidos o bancadas legislativas. Prioriza la exhaustividad y profundidad del contenido.`,
       prompt: `Hoy es ${currentDate}. Eres un experto en derecho constitucional mexicano y nuevas tecnologías. Con base en la siguiente información recopilada (Por ningun motivo inventes información o agregues fuentes que no esten citadas y verificadas):
 ${context}
 
-Redacta un proyecto de decreto extenso que expida una ley nueva para la Ciudad de México, cuidando que no exista previamente una legislación igual o sustancialmente similar. El texto debe apegarse a las normas de técnica legislativa mexicana y estructurarse de la siguiente manera, sin utilizar estilo en negritas, cursivas o listas con viñetas:
-
+Redacta un proyecto de decreto MUY EXTENSO Y DETALLADO que expida una ley nueva para la Ciudad de México, cuidando que no exista previamente una legislación igual o sustancialmente similar. El texto debe apegarse a las normas de técnica legislativa mexicana y estructurarse de la siguiente manera, sin utilizar estilo en negritas, cursivas o listas con viñetas. El objetivo es producir un documento legislativo completo y exhaustivo.
 
 TÍTULO DE LA INICIATIVA  (No añadas este texto de título, únicamente el redactado)
 [Redacta un título claro, específico y orientado a la regulación de ${topic}]
 
 EXPOSICIÓN DE MOTIVOS
-- Apóyate en antecedentes normativos nacionales e internacionales citados explícitamente.
-- Menciona, si aplica, casos recientes (como demandas o litigios relevantes) que hayan evidenciado vacíos legales en el tema abordado.
-- Justifica cómo esta ley evitará o mitiga los efectos adversos documentados del uso indebido de la IA.
-- Explica cómo la ley se alinea con los principios de transparencia, rendición de cuentas y protección de derechos humanos.
+- Desarrolla esta sección de forma MUY AMPLIA Y PROFUNDA. Apóyate en antecedentes normativos nacionales e internacionales citados explícitamente, explicando su relevancia y conexión con la propuesta.
+- Detalla, si aplica, casos recientes (como demandas o litigios relevantes) que hayan evidenciado vacíos legales en el tema abordado, explicando las implicaciones.
+- Justifica de manera exhaustiva cómo esta ley evitará o mitigará los efectos adversos documentados del uso indebido de la IA, proporcionando ejemplos y escenarios.
+- Explica con gran detalle cómo la ley se alinea con los principios de transparencia, rendición de cuentas y protección de derechos humanos, y cómo fortalecerá estos aspectos.
+- Incluye análisis comparado con otras jurisdicciones si es pertinente.
+
 ARTICULADO
-Redacta con claridad jurídica usando el formato:
+Redacta un cuerpo normativo COMPLETO Y EXTENSO. Usa el formato:
 - Si la propuesta afecta un solo ordenamiento: ARTÍCULO ÚNICO
 - Si afecta varios ordenamientos: ARTÍCULO PRIMERO, ARTÍCULO SEGUNDO, etc.
-Incluye definiciones claras y precisas para términos técnicos relacionados con la IA.
+Define cada término técnico relacionado con la IA de manera clara y precisa. Desarrolla capítulos y secciones que aborden todos los aspectos relevantes del tema ${topic}, incluyendo (pero no limitándose a) ámbito de aplicación, sujetos obligados, derechos, obligaciones, principios rectores, mecanismos de supervisión, régimen de sanciones, y cualquier otro elemento necesario para una regulación integral y detallada. Cada artículo debe ser claro, preciso y jurídicamente robusto.
 
 DISPOSICIONES TRANSITORIAS
-Establece plazos realistas y claros para la entrada en vigor, implementación y adaptación institucional.
+Establece plazos realistas y claros para la entrada en vigor, implementación progresiva, y adaptación institucional, detallando los pasos necesarios.
 
 ${legislatorInfo} ${currentDate} Ciudad de México {/* Include legislator info, date and city*/}
 
@@ -127,10 +128,10 @@ Incluye las referencias conforme al estilo APPA 7ma edición. Toda fuente utiliz
 - No se permiten referencias genéricas ni inventadas. Si no hay fuente verificable, omite esa parte.
 - Asegúrate de que cada referencia contenga, en su caso, el hipervínculo de consulta directa y la fecha exacta en la que fue consultada.
 
-Tu redacción debe ser clara, técnicamente precisa y jurídicamente impecable, adecuada al marco jurídico mexicano para el periodo ${currentYear}-${currentYear + 5}.
+Tu redacción debe ser clara, técnicamente precisa, jurídicamente impecable y, sobre todo, EXTENSA Y DETALLADA, adecuada al marco jurídico mexicano para el periodo ${currentYear}-${currentYear + 5}.
 `,
-      temperature: 0.2,
-      maxTokens: settings.maxTokensPerRequest ?? 8192, // Example: set a reasonable max for draft
+      temperature: 0.2, // Low temperature for factual consistency, extensiveness comes from prompt.
+      maxTokens: settings.maxTokensPerRequest ?? 16384, // Increased maxTokens for draft
     });
 
     if (settings.enableApiUsageTracking) {
@@ -147,36 +148,39 @@ Tu redacción debe ser clara, técnicamente precisa y jurídicamente impecable, 
   }
 }
 
+// Función para refinar legalmente el borrador
 async function refineLegalDraft(draft: string, settings: GenerationSettings): Promise<string> {
   try {
     checkRequiredApiKeys();
     const result = await generateText({
       model: openai("gpt-4o"),
       system: `Eres un experto legal especializado en derecho tecnológico y regulación de IA en México.
-      Tu tarea es revisar y refinar un borrador de proyecto de ley para asegurar:
-      1. Consistencia terminológica y jurídica
-      2. Cumplimiento con la jerarquía normativa mexicana
-      3. Precisión en las definiciones técnicas
-      4. Viabilidad de implementación
-      5. Estilo jurídico formal adecuado`,
-      prompt: `Como experto legal especializado en regulación tecnológica y derecho constitucional mexicano, revisa, mejora, expande (agregando información relevante y usando lenguaje especializado) y corrige el siguiente borrador de iniciativa de ley para la Ciudad de México.
+      Tu tarea es revisar, MEJORAR SIGNIFICATIVAMENTE Y EXPANDIR un borrador de proyecto de ley para asegurar:
+      1. Consistencia terminológica y jurídica ABSOLUTA.
+      2. Cumplimiento ESTRICTO con la jerarquía normativa mexicana.
+      3. Precisión y DETALLE en las definiciones técnicas y jurídicas.
+      4. Viabilidad de implementación, proponiendo ajustes CONCRETOS si es necesario.
+      5. Estilo jurídico formal adecuado, ELEVANDO la calidad del texto.
+      6. PROFUNDIZAR Y AMPLIAR el contenido existente, añadiendo análisis, ejemplos y justificaciones donde sea pertinente para lograr un documento MÁS COMPLETO Y ROBUSTO.`,
+      prompt: `Como experto legal especializado en regulación tecnológica y derecho constitucional mexicano, revisa, MEJORA SUSTANCIALMENTE, EXPANDE SIGNIFICATIVAMENTE (agregando información relevante, análisis más profundos, y usando lenguaje especializado y detallado) y corrige el siguiente borrador de iniciativa de ley para la Ciudad de México. El objetivo es transformarlo en un documento legislativo mucho más extenso, detallado y robusto.
 
 Tu revisión debe asegurar rigurosamente:
-1. Coherencia jurídica y técnica.
-2. Cumplimiento explícito con el marco constitucional mexicano y leyes secundarias vigentes.
-3. Claridad en las definiciones técnicas y jurídicas relativas a la inteligencia artificial.
-4. Evaluación crítica y propuesta de ajustes en la viabilidad práctica de su implementación.
+1. Coherencia jurídica y técnica IMPECABLE.
+2. Cumplimiento explícito y detallado con el marco constitucional mexicano y leyes secundarias vigentes.
+3. Claridad, PRECISIÓN Y PROFUNDIDAD en las definiciones técnicas y jurídicas relativas a la inteligencia artificial, expandiéndolas si es necesario.
+4. Evaluación crítica y propuesta de ajustes en la viabilidad práctica de su implementación, detallando las implicaciones.
 5. Formato formal estrictamente acorde con el modelo oficial (Título, Exposición de Motivos, Articulado, Disposiciones Transitorias).
-6. Mantener las referecias en formato APPA 7ma edición correctamente citadas en la exposición de motivos.
+6. Mantener las referencias en formato APPA 7ma edición correctamente citadas en la exposición de motivos, y AÑADIR referencias adicionales si enriquecen el documento y son pertinentes.
+7. EXPANDIR cada sección, especialmente la Exposición de Motivos y el Articulado, para cubrir todos los ángulos posibles del tema, añadir más detalle, justificaciones más elaboradas y un análisis más profundo.
 
       El borrador a revisar es el siguiente:
 
       
       ${draft}
       
-      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, mejorado y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro y preciso, listo para su presentación ante el Congreso de la Ciudad de México manteniendo las referencias utilizadas.`,
-      temperature: 0.1,
-      maxTokens: settings.maxTokensPerRequest ?? 8192, // Example: set a reasonable max for refinement
+      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar y AMPLIAR el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, MEJORADO Y SIGNIFICATIVAMENTE EXPANDIDO, y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro, preciso, y MUCHO MÁS EXTENSO Y DETALLADO, listo para su presentación ante el Congreso de la Ciudad de México manteniendo las referencias utilizadas y añadiendo nuevas si es necesario.`,
+      temperature: 0.1, // Very low temperature for precision during refinement.
+      maxTokens: settings.maxTokensPerRequest ?? 16384, // Increased maxTokens for refinement
     });
 
     if (settings.enableApiUsageTracking) {
