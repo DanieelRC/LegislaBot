@@ -81,7 +81,7 @@ async function generateDraftWithGPT4(context: string, topic: string, settings: G
   try {
     checkRequiredApiKeys();
     const { formatted: currentDate, year: currentYear } = getCurrentDateInSpanish();
-    const legislatorInfo = settings.defaultLegislator ? `Considera que este proyecto podría ser presentado por ${settings.defaultLegislator}.` : '';
+    const legislatorInfo = settings.defaultLegislator ? `Considera que este proyecto podría ser presentado por ${settings.defaultLegislator}.` : 'A QUIEN CORRESPONDA'; // Fallback if no default legislator
 
     const result = await generateText({
       model: openai("gpt-4o"),
@@ -91,7 +91,8 @@ async function generateDraftWithGPT4(context: string, topic: string, settings: G
       2. EXPOSICIÓN DE MOTIVOS (considerandos) - Esta sección debe ser particularmente detallada, profunda y exhaustiva.
       3. ARTICULADO (con numeración y formato legal adecuado) - Desarrolla un articulado completo, con múltiples capítulos y secciones si es necesario para cubrir el tema a profundidad. Considera todos los aspectos relevantes.
       4. DISPOSICIONES TRANSITORIAS - Detalla las disposiciones necesarias.
-      5. REFERENCIAS - Asegúrate de que sean completas y bien formateadas.
+      5. BLOQUE DE FIRMA (Legislador, Lugar y Fecha) - Justo antes de las Referencias.
+      6. REFERENCIAS - Asegúrate de que sean completas y bien formateadas.
       El proyecto debe ser técnicamente sólido, jurídicamente viable y seguir el formato oficial de los proyectos de ley en México.
       Redacta con lenguaje técnico-jurídico formal, sin referencias partidistas o ideológicas. El documento debe ser compatible con los principios de legalidad, seguridad jurídica y protección de derechos fundamentales, conforme a la Constitución Política de los Estados Unidos Mexicanos y tratados internacionales firmados por México. No incluyas menciones a actores políticos, partidos o bancadas legislativas. Prioriza la exhaustividad y profundidad del contenido.`,
       prompt: `Hoy es ${currentDate}. Eres un experto en derecho constitucional mexicano y nuevas tecnologías. Con base en la siguiente información recopilada (Por ningun motivo inventes información o agregues fuentes que no esten citadas y verificadas):
@@ -118,7 +119,12 @@ Define cada término técnico relacionado con la IA de manera clara y precisa. D
 DISPOSICIONES TRANSITORIAS
 Establece plazos realistas y claros para la entrada en vigor, implementación progresiva, y adaptación institucional, detallando los pasos necesarios.
 
-${legislatorInfo} ${currentDate} Ciudad de México {/* Include legislator info, date and city*/}
+Dado en el Salón de Sesiones del Congreso de la Ciudad de México, a los ${currentDate}.
+
+${legislatorInfo}
+Diputado/a (o el cargo correspondiente)
+
+(Este bloque anterior con el lugar, fecha y legislador DEBE estar presente ANTES de la sección de REFERENCIAS)
 
 REFERENCIAS
 Incluye las referencias conforme al estilo APPA 7ma edición. Toda fuente utilizada debe:
@@ -152,6 +158,10 @@ Tu redacción debe ser clara, técnicamente precisa, jurídicamente impecable y,
 async function refineLegalDraft(draft: string, settings: GenerationSettings): Promise<string> {
   try {
     checkRequiredApiKeys();
+    const { formatted: currentDate } = getCurrentDateInSpanish(); // Get current date for potential use if missing
+    const legislatorInfo = settings.defaultLegislator ? `${settings.defaultLegislator}\nDiputado/a (o el cargo correspondiente)` : 'A QUIEN CORRESPONDA\nDiputado/a (o el cargo correspondiente)';
+
+
     const result = await generateText({
       model: openai("gpt-4o"),
       system: `Eres un experto legal especializado en derecho tecnológico y regulación de IA en México.
@@ -162,7 +172,8 @@ async function refineLegalDraft(draft: string, settings: GenerationSettings): Pr
       4. Viabilidad de implementación, proponiendo ajustes CONCRETOS si es necesario.
       5. Estilo jurídico formal adecuado, ELEVANDO la calidad del texto.
       6. PROFUNDIZAR Y AMPLIAR el contenido existente, añadiendo análisis, ejemplos y justificaciones donde sea pertinente para lograr un documento MÁS COMPLETO Y ROBUSTO.
-      7. CRÍTICO: Asegurar que TODAS las afirmaciones basadas en fuentes externas en la Exposición de Motivos y otras secciones estén CORRECTAMENTE CITADAS en el texto (ej. Apellido, Año) y que estas citas correspondan a la lista de REFERENCIAS. Preservar las citas existentes del borrador y añadir nuevas si se introduce nueva información referenciada.`,
+      7. CRÍTICO: Asegurar que TODAS las afirmaciones basadas en fuentes externas en la Exposición de Motivos y otras secciones estén CORRECTAMENTE CITADAS en el texto (ej. Apellido, Año) y que estas citas correspondan a la lista de REFERENCIAS. Preservar las citas existentes del borrador y añadir nuevas si se introduce nueva información referenciada.
+      8. PRESERVAR EL BLOQUE DE FIRMA: Asegúrate de que el bloque que incluye el lugar ("Dado en el Salón de Sesiones del Congreso de la Ciudad de México..."), la fecha, y la información del legislador proponente se mantenga intacto y correctamente posicionado justo ANTES de la sección de REFERENCIAS. Si este bloque falta, añádelo usando la fecha actual y la información del legislador proporcionada.`,
       prompt: `Como experto legal especializado en regulación tecnológica y derecho constitucional mexicano, revisa, MEJORA SUSTANCIALMENTE, EXPANDE SIGNIFICATIVAMENTE (agregando información relevante, análisis más profundos, y usando lenguaje especializado y detallado) y corrige el siguiente borrador de iniciativa de ley para la Ciudad de México. El objetivo es transformarlo en un documento legislativo mucho más extenso, detallado y robusto.
 
 Tu revisión debe asegurar rigurosamente:
@@ -170,16 +181,17 @@ Tu revisión debe asegurar rigurosamente:
 2. Cumplimiento explícito y detallado con el marco constitucional mexicano y leyes secundarias vigentes.
 3. Claridad, PRECISIÓN Y PROFUNDIDAD en las definiciones técnicas y jurídicas relativas a la inteligencia artificial, expandiéndolas si es necesario.
 4. Evaluación crítica y propuesta de ajustes en la viabilidad práctica de su implementación, detallando las implicaciones.
-5. Formato formal estrictamente acorde con el modelo oficial (Título, Exposición de Motivos, Articulado, Disposiciones Transitorias).
+5. Formato formal estrictamente acorde con el modelo oficial (Título, Exposición de Motivos, Articulado, Disposiciones Transitorias, Bloque de Firma, Referencias).
 6. MANTENIMIENTO Y CORRECTA INTEGRACIÓN DE CITAS: Las referencias en formato APA 7ma edición deben estar correctamente citadas DENTRO del texto de la Exposición de Motivos (ejemplo: (Autor, Año, p. X)). ES FUNDAMENTAL que todas las fuentes listadas en la sección REFERENCIAS que respalden afirmaciones en la Exposición de Motivos sean explícitamente citadas en el cuerpo del texto. PRESERVA las citas existentes del borrador original y ASEGÚRATE de que cualquier nueva información o expansión que introduzcas y que provenga de una fuente esté debidamente citada en el texto. Si añades referencias nuevas, cítalas apropiadamente.
 7. EXPANDIR cada sección, especialmente la Exposición de Motivos y el Articulado, para cubrir todos los ángulos posibles del tema, añadir más detalle, justificaciones más elaboradas y un análisis más profundo.
+8. BLOQUE DE FIRMA: Verifica que el bloque "Dado en el Salón de Sesiones del Congreso de la Ciudad de México, a los [Fecha].\n\n[Nombre del Legislador/Grupo Parlamentario]\nDiputado/a (o cargo)" esté presente y correctamente ubicado ANTES de la sección de REFERENCIAS. Si no está, insértalo usando la fecha actual (${currentDate}) y la información del legislador: ${legislatorInfo}.
 
       El borrador a revisar es el siguiente:
 
       
       ${draft}
       
-      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar y AMPLIAR el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, MEJORADO Y SIGNIFICATIVAMENTE EXPANDIDO, y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro, preciso, y MUCHO MÁS EXTENSO Y DETALLADO, listo para su presentación ante el Congreso de la Ciudad de México, ASEGURANDO QUE TODAS LAS REFERENCIAS ESTÉN CORRECTAMENTE CITADAS EN EL TEXTO.`,
+      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar y AMPLIAR el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, MEJORADO Y SIGNIFICATIVAMENTE EXPANDIDO, y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro, preciso, y MUCHO MÁS EXTENSO Y DETALLADO, listo para su presentación ante el Congreso de la Ciudad de México, ASEGURANDO QUE TODAS LAS REFERENCIAS ESTÉN CORRECTAMENTE CITADAS EN EL TEXTO y que el bloque de firma esté presente y bien ubicado.`,
       temperature: 0.1, // Very low temperature for precision during refinement.
       maxTokens: settings.maxTokensPerRequest ?? 16384, // Increased maxTokens for refinement
     });
