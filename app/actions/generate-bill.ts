@@ -161,7 +161,8 @@ async function refineLegalDraft(draft: string, settings: GenerationSettings): Pr
       3. Precisión y DETALLE en las definiciones técnicas y jurídicas.
       4. Viabilidad de implementación, proponiendo ajustes CONCRETOS si es necesario.
       5. Estilo jurídico formal adecuado, ELEVANDO la calidad del texto.
-      6. PROFUNDIZAR Y AMPLIAR el contenido existente, añadiendo análisis, ejemplos y justificaciones donde sea pertinente para lograr un documento MÁS COMPLETO Y ROBUSTO.`,
+      6. PROFUNDIZAR Y AMPLIAR el contenido existente, añadiendo análisis, ejemplos y justificaciones donde sea pertinente para lograr un documento MÁS COMPLETO Y ROBUSTO.
+      7. CRÍTICO: Asegurar que TODAS las afirmaciones basadas en fuentes externas en la Exposición de Motivos y otras secciones estén CORRECTAMENTE CITADAS en el texto (ej. Apellido, Año) y que estas citas correspondan a la lista de REFERENCIAS. Preservar las citas existentes del borrador y añadir nuevas si se introduce nueva información referenciada.`,
       prompt: `Como experto legal especializado en regulación tecnológica y derecho constitucional mexicano, revisa, MEJORA SUSTANCIALMENTE, EXPANDE SIGNIFICATIVAMENTE (agregando información relevante, análisis más profundos, y usando lenguaje especializado y detallado) y corrige el siguiente borrador de iniciativa de ley para la Ciudad de México. El objetivo es transformarlo en un documento legislativo mucho más extenso, detallado y robusto.
 
 Tu revisión debe asegurar rigurosamente:
@@ -170,7 +171,7 @@ Tu revisión debe asegurar rigurosamente:
 3. Claridad, PRECISIÓN Y PROFUNDIDAD en las definiciones técnicas y jurídicas relativas a la inteligencia artificial, expandiéndolas si es necesario.
 4. Evaluación crítica y propuesta de ajustes en la viabilidad práctica de su implementación, detallando las implicaciones.
 5. Formato formal estrictamente acorde con el modelo oficial (Título, Exposición de Motivos, Articulado, Disposiciones Transitorias).
-6. Mantener las referencias en formato APPA 7ma edición correctamente citadas en la exposición de motivos, y AÑADIR referencias adicionales si enriquecen el documento y son pertinentes.
+6. MANTENIMIENTO Y CORRECTA INTEGRACIÓN DE CITAS: Las referencias en formato APA 7ma edición deben estar correctamente citadas DENTRO del texto de la Exposición de Motivos (ejemplo: (Autor, Año, p. X)). ES FUNDAMENTAL que todas las fuentes listadas en la sección REFERENCIAS que respalden afirmaciones en la Exposición de Motivos sean explícitamente citadas en el cuerpo del texto. PRESERVA las citas existentes del borrador original y ASEGÚRATE de que cualquier nueva información o expansión que introduzcas y que provenga de una fuente esté debidamente citada en el texto. Si añades referencias nuevas, cítalas apropiadamente.
 7. EXPANDIR cada sección, especialmente la Exposición de Motivos y el Articulado, para cubrir todos los ángulos posibles del tema, añadir más detalle, justificaciones más elaboradas y un análisis más profundo.
 
       El borrador a revisar es el siguiente:
@@ -178,7 +179,7 @@ Tu revisión debe asegurar rigurosamente:
       
       ${draft}
       
-      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar y AMPLIAR el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, MEJORADO Y SIGNIFICATIVAMENTE EXPANDIDO, y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro, preciso, y MUCHO MÁS EXTENSO Y DETALLADO, listo para su presentación ante el Congreso de la Ciudad de México manteniendo las referencias utilizadas y añadiendo nuevas si es necesario.`,
+      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar y AMPLIAR el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, MEJORADO Y SIGNIFICATIVAMENTE EXPANDIDO, y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro, preciso, y MUCHO MÁS EXTENSO Y DETALLADO, listo para su presentación ante el Congreso de la Ciudad de México, ASEGURANDO QUE TODAS LAS REFERENCIAS ESTÉN CORRECTAMENTE CITADAS EN EL TEXTO.`,
       temperature: 0.1, // Very low temperature for precision during refinement.
       maxTokens: settings.maxTokensPerRequest ?? 16384, // Increased maxTokens for refinement
     });
