@@ -170,7 +170,7 @@ REFERENCIAS
 
 Genera un documento JURÍDICAMENTE ROBUSTO, con mínimo 100 artículos bien estructurados, que sirva como marco regulatorio completo para ${topic} en la Ciudad de México para el periodo ${currentYear}-${currentYear + 5}.`,
       temperature: 0.2,
-      maxTokens: settings.maxTokensPerRequest ?? 3000, // Aumentado para documentos extensos
+      maxTokens: 2000, // Aumentado para documentos extensos
     });
 
     if (settings.enableApiUsageTracking) {
@@ -226,7 +226,7 @@ ${draft}
 
 Entrega ÚNICAMENTE el texto legal mejorado, SIN comentarios ni letra en negritas, adémas las definiciones deben de ir enumeradas con números romanos. El resultado debe ser un documento FORMAL, EXHAUSTIVO Y LISTO PARA PRESENTACIÓN, con más de 100 artículos y 40+ definiciones técnicas.`,
       temperature: 0.1,
-      maxTokens: settings.maxTokensPerRequest ?? 4000, // Aumentado para expansión sustancial
+      maxTokens: 2000, // Aumentado para expansión sustancial
     });
 
     if (settings.enableApiUsageTracking) {
