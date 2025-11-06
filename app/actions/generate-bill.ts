@@ -170,7 +170,7 @@ REFERENCIAS
 
 Genera un documento JURÍDICAMENTE ROBUSTO, con mínimo 100 artículos bien estructurados, que sirva como marco regulatorio completo para ${topic} en la Ciudad de México para el periodo ${currentYear}-${currentYear + 5}.`,
       temperature: 0.2,
-      maxTokens: settings.maxTokensPerRequest ?? 32768, // Aumentado para documentos extensos
+      maxTokens: settings.maxTokensPerRequest ?? 20768, // Aumentado para documentos extensos
     });
 
     if (settings.enableApiUsageTracking) {
@@ -226,7 +226,7 @@ ${draft}
 
 Entrega ÚNICAMENTE el texto legal mejorado, SIN comentarios ni letra en negritas, adémas las definiciones deben de ir enumeradas con números romanos. El resultado debe ser un documento FORMAL, EXHAUSTIVO Y LISTO PARA PRESENTACIÓN, con más de 100 artículos y 40+ definiciones técnicas.`,
       temperature: 0.1,
-      maxTokens: settings.maxTokensPerRequest ?? 32768, // Aumentado para expansión sustancial
+      maxTokens: settings.maxTokensPerRequest ?? 20768, // Aumentado para expansión sustancial
     });
 
     if (settings.enableApiUsageTracking) {
@@ -276,29 +276,5 @@ export async function processGenerationStep(args: ProcessStepArgs): Promise<stri
   } catch (error) {
     console.error(`Error en processGenerationStep (etapa: ${stage}):`, error);
     throw new Error(`Error durante la etapa '${stage}': ${error instanceof Error ? error.message : String(error)}`);
-  }
-}
-
-// Función completa para generación de leyes
-export async function generateFullLaw(topic: string): Promise<string> {
-  try {
-    const settings = await getRelevantSettings();
-
-    // Etapa 1: Investigación profunda
-    console.log("Iniciando investigación...");
-    const research = await researchWithGemini(topic, { ...settings, maxTokensPerRequest: 8192 });
-
-    // Etapa 2: Generación de borrador técnico-jurídico
-    console.log("Generando borrador...");
-    const draft = await generateDraftWithGPT4(research, topic, { ...settings, maxTokensPerRequest: 32768 });
-
-    // Etapa 3: Refinamiento experto
-    console.log("Refinando documento...");
-    const refined = await refineLegalDraft(draft, { ...settings, maxTokensPerRequest: 32768 });
-
-    return refined;
-  } catch (error) {
-    console.error("Error en el proceso completo de generación de ley:", error);
-    throw new Error(`Proceso fallido: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
