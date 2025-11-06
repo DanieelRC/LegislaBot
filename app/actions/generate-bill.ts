@@ -45,21 +45,23 @@ async function researchWithGemini(topic: string, settings: GenerationSettings): 
     const { formatted: currentDate, year: currentYear } = getCurrentDateInSpanish();
 
     const result = await generateText({
-      model: google("gemini-1.5-flash"), // Changed to 1.5-flash for potentially faster research
-      prompt: `Hoy es ${currentDate}. Realiza una investigación exhaustiva sobre "${topic}" en el contexto jurídico mexicano, especialmente aplicable a la Ciudad de México (Por ningun motivo inventes información). Identifica:
-- Legislación vigente (federal y local) relacionada.
-- Iniciativas previas sobre el tema (si existen).
-- Estudios académicos recientes (a partir de 2020 hasta ${currentYear}).
-- Regulaciones internacionales destacadas sobre este tema.
-- Principales problemas jurídicos o vacíos legales que justifican esta iniciativa.
+      model: google("gemini-2.5-flash"),
+      prompt: `Hoy es ${currentDate}. Realiza una investigación exhaustiva sobre "${topic}" en el contexto jurídico mexicano, especialmente aplicable a la Ciudad de México (Por ningún motivo inventes información). Identifica:
+- Legislación vigente (federal y local) relacionada
+- Iniciativas previas sobre el tema (si existen)
+- Estudios académicos recientes (a partir de 2020 hasta ${currentYear})
+- Regulaciones internacionales destacadas sobre este tema
+- Principales problemas jurídicos o vacíos legales que justifican esta iniciativa
+- Términos técnicos clave que deben ser definidos legalmente (mínimo 30 conceptos)
 
 Organiza tu respuesta claramente en secciones tituladas y formatea la respuesta como una lista con las siguientes categorías:
 - Título de la fuente
 - Tipo (ley, iniciativa, estudio académico, regulación internacional)
 - Breve resumen
-- Relevancia específica para fundamentar un proyecto de ley sobre ${topic} en la Ciudad de México, periodo ${currentYear}-${currentYear + 5}.`,
+- Relevancia específica para fundamentar un proyecto de ley sobre ${topic} en la Ciudad de México, periodo ${currentYear}-${currentYear + 5}
+- Términos técnicos identificados que requieren definición legal`,
       temperature: 0.3,
-      maxTokens: settings.maxTokensPerRequest ?? 4096, // Keeping research at 4096
+      maxTokens: settings.maxTokensPerRequest ?? 8192, // Aumentado para investigación profunda
     });
 
     if (settings.enableApiUsageTracking) {
@@ -86,53 +88,89 @@ async function generateDraftWithGPT4(context: string, topic: string, settings: G
     const result = await generateText({
       model: openai("gpt-4o"),
       system: `Eres un asistente legal especializado en la redacción de proyectos de ley para la Ciudad de México.
-      Debes generar un proyecto de ley completo y MUY EXTENSO con la siguiente estructura:
-      1. TÍTULO DEL PROYECTO DE LEY
-      2. EXPOSICIÓN DE MOTIVOS (considerandos) - Esta sección debe ser particularmente detallada, profunda y exhaustiva.
-      3. ARTICULADO (con numeración y formato legal adecuado) - Desarrolla un articulado completo, con múltiples capítulos y secciones si es necesario para cubrir el tema a profundidad. Considera todos los aspectos relevantes.
-      4. DISPOSICIONES TRANSITORIAS - Detalla las disposiciones necesarias.
-      5. FIRMA - Solo incluye "Ciudad de México, [fecha]" y el nombre del legislador sin títulos adicionales.
-      6. REFERENCIAS - Asegúrate de que sean completas y bien formateadas.
+      Debes generar un proyecto de ley COMPLETO, EXTREMADAMENTE DETALLADO Y TÉCNICO con la siguiente estructura:
+      1. TÍTULO DEL PROYECTO DE LEY - Redactado formalmente
+      2. EXPOSICIÓN DE MOTIVOS (considerandos) - Mínimo 1500 palabras, con fundamentación jurídica profunda
+      3. ARTICULADO - Con estructura jerárquica (Títulos, Capítulos, Secciones) y numeración legal adecuada
+         - Incluir CAPÍTULO DE DEFINICIONES con al menos 30 términos técnicos definidos con precisión jurídica
+         - Desarrollar mínimo 50 artículos cubriendo todos los aspectos regulatorios
+         - Considerar casos límite, excepciones y mecanismos de actualización
+      4. DISPOSICIONES TRANSITORIAS - Detalladas y con plazos específicos
+      5. FIRMA - Solo incluye "Ciudad de México, [fecha]" y el nombre del legislador
+      6. REFERENCIAS - Completas y verificables con formato APA 7ma edición
+      
       El proyecto debe ser técnicamente sólido, jurídicamente viable y seguir el formato oficial de los proyectos de ley en México.
-      Redacta con lenguaje técnico-jurídico formal, sin referencias partidistas o ideológicas. El documento debe ser compatible con los principios de legalidad, seguridad jurídica y protección de derechos fundamentales, conforme a la Constitución Política de los Estados Unidos Mexicanos y tratados internacionales firmados por México. No incluyas menciones a actores políticos, partidos o bancadas legislativas. Prioriza la exhaustividad y profundidad del contenido.`,
-      prompt: `Hoy es ${currentDate}. Eres un experto en derecho constitucional mexicano y nuevas tecnologías. Con base en la siguiente información recopilada (Por ningun motivo inventes información o agregues fuentes que no esten citadas y verificadas):
+      Redacta con lenguaje técnico-jurídico formal, sin referencias partidistas. Prioriza exhaustividad y profundidad.`,
+      prompt: `Hoy es ${currentDate}. Eres un experto en derecho constitucional mexicano y regulación tecnológica. Con base en la siguiente investigación (NO INVENTES INFORMACIÓN):
 ${context}
 
-Redacta un proyecto de decreto MUY EXTENSO Y DETALLADO que expida una ley nueva para la Ciudad de México, cuidando que no exista previamente una legislación igual o sustancialmente similar. El texto debe apegarse a las normas de técnica legislativa mexicana y estructurarse de la siguiente manera, sin utilizar estilo en negritas, cursivas o listas con viñetas. El objetivo es producir un documento legislativo completo y exhaustivo.
+Redacta un proyecto de decreto EXTREMADAMENTE DETALLADO que expida una nueva ley para la Ciudad de México sobre ${topic}. El texto debe apegarse estrictamente a las normas de técnica legislativa mexicana.
 
-TÍTULO DE LA INICIATIVA  (No añadas este texto de título, únicamente el redactado)
-[Redacta un título claro, específico y orientado a la regulación de ${topic}]
+ESTRUCTURA OBLIGATORIA:
 
-EXPOSICIÓN DE MOTIVOS
-- Desarrolla esta sección de forma MUY AMPLIA Y PROFUNDA. Apóyate en antecedentes normativos nacionales e internacionales citados explícitamente, explicando su relevancia y conexión con la propuesta.
-- Detalla, si aplica, casos recientes (como demandas o litigios relevantes) que hayan evidenciado vacíos legales en el tema abordado, explicando las implicaciones.
-- Justifica de manera exhaustiva cómo esta ley evitará o mitigará los efectos adversos documentados del uso indebido de la IA, proporcionando ejemplos y escenarios.
-- Explica con gran detalle cómo la ley se alinea con los principios de transparencia, rendición de cuentas y protección de derechos humanos, y cómo fortalecerá estos aspectos.
-- Incluye análisis comparado con otras jurisdicciones si es pertinente.
+TÍTULO DE LA INICIATIVA
+[Redacta un título formal para la ley]
+
+EXPOSICIÓN DE MOTIVOS (Redactalo en formato de considerandos y no separes en párrafos con títulos en esta parte, los considerandos son de dos tipos: (i) fácticos, donde se señalan los hechos que justifican la resolución; y (ii) normativos, que contienen referencia a normas preexistentes, las cuales sustentan la emisión de la nueva norma. Es costumbre que los considerandos normativos empiecen citando la existencia de una norma para luego transcribir lo que ella dice. Siguen una estructura como esta: referencia a una norma – cita textual de la Norma. No utilices siempre la palabra considerando, varía con "CONSIDERANDO", "CONSIDERA", etc. En minusculas): 
+- Fundamenta con profundidad (mínimo 1500 palabras) usando:
+  * 5 tratados internacionales relevantes
+  * 3 jurisprudencias locales aplicables
+  * 2 estudios técnicos actualizados
+- Analiza vacíos legales identificados con casos concretos
+- Explica cómo cada artículo resuelve problemas específicos
+- Justifica la alineación con principios constitucionales
 
 ARTICULADO
-Redacta un cuerpo normativo COMPLETO Y EXTENSO. Usa el formato:
-- Si la propuesta afecta un solo ordenamiento: ARTÍCULO ÚNICO
-- Si afecta varios ordenamientos: ARTÍCULO PRIMERO, ARTÍCULO SEGUNDO, etc.
-Define cada término técnico relacionado con la IA de manera clara y precisa. Desarrolla capítulos y secciones que aborden todos los aspectos relevantes del tema ${topic}, incluyendo (pero no limitándose a) ámbito de aplicación, sujetos obligados, derechos, obligaciones, principios rectores, mecanismos de supervisión, régimen de sanciones, y cualquier otro elemento necesario para una regulación integral y detallada. Cada artículo debe ser claro, preciso y jurídicamente robusto.
+Sigue esta estructura jerárquica:
+TÍTULO PRIMERO: DISPOSICIONES GENERALES
+  Capítulo I - Objeto, ámbito de aplicación y principios rectores
+  Capítulo II - DEFINICIONES (mínimo 30 términos técnicos definidos con precisión jurídica)
+  
+TÍTULO SEGUNDO: DERECHOS Y OBLIGACIONES
+  Capítulo I - Derechos de los titulares
+  Capítulo II - Obligaciones de los responsables
+  
+TÍTULO TERCERO: GOBERNANZA Y SUPERVISIÓN
+  Capítulo I - Órganos de supervisión
+  Capítulo II - Mecanismos de control
+  
+TÍTULO CUARTO: SEGURIDAD Y PROTECCIÓN DE DATOS
+  Capítulo I - Medidas técnicas
+  Capítulo II - Protocolos de seguridad
+  
+TÍTULO QUINTO: RÉGIMEN SANCIONADOR
+  Capítulo I - Infracciones
+  Capítulo II - Sanciones
+  
+(Continúa con títulos necesarios para cubrir TODOS los aspectos del tema)
+
+Cada artículo debe:
+- Ser claro, preciso y autónomo
+- Contemplar excepciones y casos límite
+- Incluir referencias cruzadas cuando sea necesario
+- Especificar plazos y procedimientos concretos
 
 DISPOSICIONES TRANSITORIAS
-Establece plazos realistas y claros para la entrada en vigor, implementación progresiva, y adaptación institucional, detallando los pasos necesarios.
+- Establece plazos realistas para implementación
+- Detalla fases de adaptación
+- Especifica obligaciones de transición
 Ciudad de México, ${currentDate}.
 ${legislatorInfo}
 
 REFERENCIAS
-Incluye las referencias conforme al estilo APPA 7ma edición. Toda fuente utilizada debe:
-- Estar referenciada explícitamente dentro del cuerpo del texto (por ejemplo: “como señala la OCDE (2021)...”).
-- Al final, incluir la lista completa de referencias bajo el epígrafe “REFERENCIAS”, con autor, año, título, fuente, URL (si aplica) y fecha de consulta.
-- Las referencias legislativas deben incluir el nombre exacto del instrumento jurídico, año de publicación, y fuente de consulta oficial.
-- No se permiten referencias genéricas ni inventadas. Si no hay fuente verificable, omite esa parte.
-- Asegúrate de que cada referencia contenga, en su caso, el hipervínculo de consulta directa y la fecha exacta en la que fue consultada.
+- Formato APA 7ma edición
+- Mínimo 20 fuentes académicas/jurídicas
+- Incluir:
+  * Hipervínculos verificables
+  * Fechas exactas de consulta
+  * 5 tratados internacionales
+  * 3 jurisprudencias locales
+  * 2 estudios técnicos actualizados
+- Solo fuentes existentes y verificables
 
-Tu redacción debe ser clara, técnicamente precisa, jurídicamente impecable y, sobre todo, EXTENSA Y DETALLADA, adecuada al marco jurídico mexicano para el periodo ${currentYear}-${currentYear + 5}.
-`,
-      temperature: 0.2, // Low temperature for factual consistency, extensiveness comes from prompt.
-      maxTokens: settings.maxTokensPerRequest ?? 16384, // Increased maxTokens for draft
+Genera un documento JURÍDICAMENTE ROBUSTO, con mínimo 100 artículos bien estructurados, que sirva como marco regulatorio completo para ${topic} en la Ciudad de México para el periodo ${currentYear}-${currentYear + 5}.`,
+      temperature: 0.2,
+      maxTokens: settings.maxTokensPerRequest ?? 32768, // Aumentado para documentos extensos
     });
 
     if (settings.enableApiUsageTracking) {
@@ -159,35 +197,36 @@ async function refineLegalDraft(draft: string, settings: GenerationSettings): Pr
     const result = await generateText({
       model: openai("gpt-4o"),
       system: `Eres un experto legal especializado en derecho tecnológico y regulación de IA en México.
-      Tu tarea es revisar, MEJORAR SIGNIFICATIVAMENTE Y EXPANDIR un borrador de proyecto de ley para asegurar:
-      1. Consistencia terminológica y jurídica ABSOLUTA.
-      2. Cumplimiento ESTRICTO con la jerarquía normativa mexicana.
-      3. Precisión y DETALLE en las definiciones técnicas y jurídicas.
-      4. Viabilidad de implementación, proponiendo ajustes CONCRETOS si es necesario.
-      5. Estilo jurídico formal adecuado, ELEVANDO la calidad del texto.
-      6. PROFUNDIZAR Y AMPLIAR el contenido existente, añadiendo análisis, ejemplos y justificaciones donde sea pertinente para lograr un documento MÁS COMPLETO Y ROBUSTO.
-      7. CRÍTICO: Asegurar que TODAS las afirmaciones basadas en fuentes externas en la Exposición de Motivos y otras secciones estén CORRECTAMENTE CITADAS en el texto (ej. Apellido, Año) y que estas citas correspondan a la lista de REFERENCIAS. Preservar las citas existentes del borrador y añadir nuevas si se introduce nueva información referenciada.
-      8. PRESERVAR EL BLOQUE DE FIRMA: Asegúrate de que el bloque que incluye "Ciudad de México, [fecha]" y el nombre del legislador se mantenga intacto y correctamente posicionado justo ANTES de la sección de REFERENCIAS. Si este bloque falta, añádelo usando la fecha actual y la información del legislador proporcionada. NO incluyas frases como "Dado en el Salón de Sesiones" ni títulos como "Diputado/a".`,
-      prompt: `Como experto legal especializado en regulación tecnológica y derecho constitucional mexicano, revisa, MEJORA SUSTANCIALMENTE, EXPANDE SIGNIFICATIVAMENTE (agregando información relevante, análisis más profundos, y usando lenguaje especializado y detallado) y corrige el siguiente borrador de iniciativa de ley para la Ciudad de México. El objetivo es transformarlo en un documento legislativo mucho más extenso, detallado y robusto.
+      Tu tarea es revisar, MEJORAR Y EXPANDIR sustancialmente un borrador de proyecto de ley asegurando:
+      1. Consistencia terminológica y jurídica ABSOLUTA
+      2. Cumplimiento ESTRICTO con la jerarquía normativa mexicana
+      3. Precisión y DETALLE en las definiciones técnicas (ampliar a 40+ términos si es necesario)
+      4. Verificación de que cada artículo contemple casos límite y excepciones
+      5. Ampliación del articulado a 120+ artículos donde sea necesario
+      6. Integración PERFECTA de citas y referencias
+      7. PRESERVACIÓN de la estructura jerárquica (Títulos, Capítulos, Artículos)`,
+      prompt: `Como experto legal en regulación tecnológica, revisa, MEJORA SUSTANCIALMENTE y EXPANDE el siguiente borrador para la Ciudad de México. Transforma este documento en un texto legislativo PROFESIONAL, COMPLETO Y TÉCNICAMENTE PERFECTO.
 
-Tu revisión debe asegurar rigurosamente:
-1. Coherencia jurídica y técnica IMPECABLE.
-2. Cumplimiento explícito y detallado con el marco constitucional mexicano y leyes secundarias vigentes.
-3. Claridad, PRECISIÓN Y PROFUNDIDAD en las definiciones técnicas y jurídicas relativas a la inteligencia artificial, expandiéndolas si es necesario.
-4. Evaluación crítica y propuesta de ajustes en la viabilidad práctica de su implementación, detallando las implicaciones.
-5. Formato formal estrictamente acorde con el modelo oficial (Título, Exposición de Motivos, Articulado, Disposiciones Transitorias, Bloque de Firma, Referencias).
-6. MANTENIMIENTO Y CORRECTA INTEGRACIÓN DE CITAS: Las referencias en formato APA 7ma edición deben estar correctamente citadas DENTRO del texto de la Exposición de Motivos (ejemplo: (Autor, Año, p. X)). ES FUNDAMENTAL que todas las fuentes listadas en la sección REFERENCIAS que respalden afirmaciones en la Exposición de Motivos sean explícitamente citadas en el cuerpo del texto. PRESERVA las citas existentes del borrador original y ASEGÚRATE de que cualquier nueva información o expansión que introduzcas y que provenga de una fuente esté debidamente citada en el texto. Si añades referencias nuevas, cítalas apropiadamente.
-7. EXPANDIR cada sección, especialmente la Exposición de Motivos y el Articulado, para cubrir todos los ángulos posibles del tema, añadir más detalle, justificaciones más elaboradas y un análisis más profundo.
-8. FIRMA: Verifica que el bloque solo incluya "Ciudad de México, [fecha]" y el nombre del legislador (sin títulos como "Diputado/a"), ubicado ANTES de la sección de REFERENCIAS. Si no está, insértalo usando la fecha actual (${currentDate}) y solo el nombre: ${legislatorInfo}.
+Revisión crítica obligatoria:
+1. AMPLIAR el capítulo de definiciones a 40+ términos técnicos con precisión jurídica
+2. VERIFICAR que cada artículo contemple:
+   - Excepciones aplicables
+   - Casos límite no obvios
+   - Mecanismos de actualización
+3. ASEGURAR concordancia con legislación complementaria
+4. AÑADIR 20% más de artículos donde sea necesario para cobertura completa
+5. GARANTIZAR que todas las referencias estén:
+   - Correctamente citadas en el texto (Autor, Año, p. X)
+   - Incluidas en la sección de REFERENCIAS con hipervínculos verificables
+6. FIRMA: Mantener EXACTAMENTE "Ciudad de México, [fecha]" y nombre del legislador antes de las referencias
 
-      El borrador a revisar es el siguiente:
+El borrador a transformar es:
 
-      
-      ${draft}
-      
-      Mantén la estructura original, pero realiza ajustes significativos para perfeccionar y AMPLIAR el texto jurídico final. No coloques Comentarios y Ajustes Propuestos, únicamente dame el texto corregido, MEJORADO Y SIGNIFICATIVAMENTE EXPANDIDO, y no coloques texto en negritas. El resultado debe ser un texto legal formal, claro, preciso, y MUCHO MÁS EXTENSO Y DETALLADO, listo para su presentación ante el Congreso de la Ciudad de México, ASEGURANDO QUE TODAS LAS REFERENCIAS ESTÉN CORRECTAMENTE CITADAS EN EL TEXTO y que el bloque de firma esté presente y bien ubicado.`,
-      temperature: 0.1, // Very low temperature for precision during refinement.
-      maxTokens: settings.maxTokensPerRequest ?? 16384, // Increased maxTokens for refinement
+${draft}
+
+Entrega ÚNICAMENTE el texto legal mejorado, SIN comentarios ni letra en negritas, adémas las definiciones deben de ir enumeradas con números romanos. El resultado debe ser un documento FORMAL, EXHAUSTIVO Y LISTO PARA PRESENTACIÓN, con más de 100 artículos y 40+ definiciones técnicas.`,
+      temperature: 0.1,
+      maxTokens: settings.maxTokensPerRequest ?? 32768, // Aumentado para expansión sustancial
     });
 
     if (settings.enableApiUsageTracking) {
@@ -209,7 +248,7 @@ export type GenerationStage = 'research' | 'draft' | 'refine';
 interface ProcessStepArgs {
   stage: GenerationStage;
   topic: string;
-  inputData?: string; // For 'draft' stage, this is researchContext. For 'refine' stage, this is initialDraft.
+  inputData?: string;
 }
 
 export async function processGenerationStep(args: ProcessStepArgs): Promise<string> {
@@ -223,33 +262,43 @@ export async function processGenerationStep(args: ProcessStepArgs): Promise<stri
         return await researchWithGemini(topic, settings);
       case 'draft':
         if (!inputData) {
-          throw new Error("Input data (research context) is required for drafting stage.");
+          throw new Error("Se requiere contexto de investigación para la etapa de redacción");
         }
         return await generateDraftWithGPT4(inputData, topic, settings);
       case 'refine':
         if (!inputData) {
-          throw new Error("Input data (initial draft) is required for refinement stage.");
+          throw new Error("Se requiere borrador inicial para la etapa de refinamiento");
         }
         return await refineLegalDraft(inputData, settings);
       default:
-        throw new Error("Invalid generation stage provided.");
+        throw new Error("Etapa de generación inválida");
     }
   } catch (error) {
-    console.error(`Error in processGenerationStep (stage: ${stage}):`, error);
+    console.error(`Error en processGenerationStep (etapa: ${stage}):`, error);
     throw new Error(`Error durante la etapa '${stage}': ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
-// The original generateBill function is removed or commented out
-// export async function generateBill(topic: string): Promise<string> {
-//   try {
-//     const settings = await getRelevantSettings();
-//     const researchContext = await researchWithGemini(topic, settings);
-//     const initialDraft = await generateDraftWithGPT4(researchContext, topic, settings);
-//     const finalBill = await refineLegalDraft(initialDraft, settings);
-//     return finalBill;
-//   } catch (error) {
-//     console.error("Error en el proceso de generación del proyecto de ley:", error);
-//     throw new Error(`Error al generar el proyecto de ley: ${error instanceof Error ? error.message : String(error)}`);
-//   }
-// }
+// Función completa para generación de leyes
+export async function generateFullLaw(topic: string): Promise<string> {
+  try {
+    const settings = await getRelevantSettings();
+
+    // Etapa 1: Investigación profunda
+    console.log("Iniciando investigación...");
+    const research = await researchWithGemini(topic, { ...settings, maxTokensPerRequest: 8192 });
+
+    // Etapa 2: Generación de borrador técnico-jurídico
+    console.log("Generando borrador...");
+    const draft = await generateDraftWithGPT4(research, topic, { ...settings, maxTokensPerRequest: 32768 });
+
+    // Etapa 3: Refinamiento experto
+    console.log("Refinando documento...");
+    const refined = await refineLegalDraft(draft, { ...settings, maxTokensPerRequest: 32768 });
+
+    return refined;
+  } catch (error) {
+    console.error("Error en el proceso completo de generación de ley:", error);
+    throw new Error(`Proceso fallido: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
