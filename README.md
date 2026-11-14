@@ -21,7 +21,7 @@ Navegador ──(1 petición corta por sección)──▶  /api/generate  (Edge 
    │  hook useBillGeneration                       ├─ Zod: valida y limpia la entrada
    │  · orquesta los pasos                         ├─ Cuota diaria por IP (Postgres, upsert atómico)
    │  · pinta el stream en la hoja                 ├─ Token HMAC por generación (expira en 1 h)
-   │  · persiste en sessionStorage                 └─ Gemini 2.5 Flash / GPT-4o  ·  o modo demo
+   │  · persiste en sessionStorage                 └─ Grok (grok-build-0.1)  ·  o modo demo
    │
    └─ Server Actions (borradores) ──▶ Neon Postgres (Drizzle), filtrado por cookie de sesión
 ```
@@ -43,7 +43,7 @@ Una ley completa tarda minutos en generarse y el plan gratuito de Vercel corta l
 
 ## Stack
 
-Next.js 14 (App Router, Edge Runtime) · TypeScript · Vercel AI SDK (Gemini, GPT-4o) · Neon Postgres + Drizzle · Tailwind CSS + Radix UI · Zod · jsPDF
+Next.js 14 (App Router, Edge Runtime) · TypeScript · Vercel AI SDK con Grok (xAI) · Neon Postgres + Drizzle · Tailwind CSS + Radix UI · Zod · jsPDF
 
 ## Puesta en marcha
 
@@ -54,16 +54,15 @@ npm run db:migrate           # crea/actualiza las tablas (opcional si no usas ba
 npm run dev
 ```
 
-Sin claves de IA la aplicación funciona en **modo demo**; sin `DATABASE_URL` funciona todo excepto guardar borradores.
+Sin `XAI_API_KEY` la aplicación funciona en **modo demo**; sin `DATABASE_URL` funciona todo excepto guardar borradores.
 
 ### Variables de entorno
 
 | Variable | Requerida | Descripción |
 |---|---|---|
-| `OPENAI_API_KEY` | Para IA real | Redacción (GPT-4o) |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Para IA real | Investigación (Gemini) |
-| `DATABASE_URL` | Para guardar | Cadena de conexión de Neon |
-| `GENERATION_SECRET` | En producción | Firma los tokens de generación (`openssl rand -hex 32`) |
+| `XAI_API_KEY` | Para IA real | Generación con Grok (`grok-build-0.1`) |
+| `DATABASE_URL` | Para guardar | Cadena de conexión de Neon (en Vercel se usa la de la integración, `DATABASE_URL_DATABASE_URL`) |
+| `GENERATION_SECRET` | Opcional | Firma los tokens de generación; si falta se deriva de `XAI_API_KEY` |
 | `ADMIN_TOKEN` | Opcional | Permite editar los ajustes desde `/settings` |
 | `DAILY_GENERATION_LIMIT` | Opcional | Generaciones reales por IP al día (por defecto 3) |
 

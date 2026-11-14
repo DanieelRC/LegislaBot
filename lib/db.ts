@@ -1,7 +1,9 @@
 import { neon } from "@neondatabase/serverless"
 import { drizzle } from "drizzle-orm/neon-http"
 
-const url = process.env.DATABASE_URL?.trim()
+// DATABASE_URL_DATABASE_URL la crea la integración de Neon en Vercel (prefijo "DATABASE_URL")
+// y se actualiza sola si se regeneran las credenciales; tiene prioridad sobre la variable manual.
+const url = (process.env.DATABASE_URL_DATABASE_URL || process.env.DATABASE_URL)?.trim()
 
 /** Cliente SQL de Neon (HTTP, compatible con Edge). `null` si no hay base de datos configurada. */
 export const sql: ReturnType<typeof neon> | null = url ? neon(url) : null

@@ -1,5 +1,4 @@
-import { google } from "@ai-sdk/google"
-import { openai } from "@ai-sdk/openai"
+import { xai } from "@ai-sdk/xai"
 import { streamText } from "ai"
 import { DEMO_CLOSING, DEMO_EXPOSITION, DEMO_OUTLINE, DEMO_RESEARCH, DEMO_TITLES } from "@/lib/demo-content"
 import { dailyGenerationLimit, hasAiKeys } from "@/lib/env"
@@ -7,7 +6,7 @@ import { signGenerationToken, verifyGenerationToken, type GenerationMode } from 
 import {
   closingPrompt,
   expositionPrompt,
-  MODELS,
+  MODEL,
   outlinePrompt,
   researchPrompt,
   titlePrompt,
@@ -138,19 +137,17 @@ export async function POST(request: Request) {
 
   try {
     const spec = await buildPrompt(body)
-    const model = body.step === "research" ? MODELS.research : MODELS.writer
     const result = streamText({
-      model: model.provider === "google" ? google(model.id) : openai(model.id),
+      model: xai(MODEL.id),
       system: spec.system,
       prompt: spec.prompt,
       maxTokens: spec.maxTokens,
-      temperature: spec.temperature,
       abortSignal: request.signal,
       onError: ({ error }) => console.error(`Error de IA en el paso "${body.step}":`, error),
       onFinish: async ({ usage }) => {
         const settings = await getPublicSettings()
         if (settings.enable_api_usage_tracking !== "false") {
-          await logApiUsage(`${model.provider}/${model.id}`, usage.totalTokens, body.step)
+          await logApiUsage(`${MODEL.provider}/${MODEL.id}`, usage.totalTokens, body.step)
         }
       },
     })

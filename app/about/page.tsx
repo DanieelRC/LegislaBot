@@ -3,11 +3,11 @@ import type { Metadata } from "next"
 export const metadata: Metadata = { title: "Acerca de" }
 
 const pipeline = [
-  ["Investigación", "Gemini 2.5 Flash", "Marco legal, referentes y vacíos"],
-  ["Estructura", "GPT-4o", "Título y esquema con numeración"],
-  ["Exposición de motivos", "GPT-4o", "Considerandos fácticos y normativos"],
-  ["Articulado", "GPT-4o × Título", "Una petición por cada Título"],
-  ["Transitorios y referencias", "GPT-4o", "Cierre, firma y fuentes"],
+  ["Investigación", "grok-build-0.1", "Marco legal, referentes y vacíos"],
+  ["Estructura", "grok-build-0.1", "Título y esquema con numeración"],
+  ["Exposición de motivos", "grok-build-0.1", "Considerandos fácticos y normativos"],
+  ["Articulado", "grok-build-0.1 × Título", "Una petición por cada Título"],
+  ["Transitorios y referencias", "grok-build-0.1", "Cierre, firma y fuentes"],
 ]
 
 const decisions = [
@@ -101,7 +101,7 @@ export default function AboutPage() {
           Stack
         </h2>
         <p className="mt-4 leading-relaxed text-muted-foreground">
-          Next.js 14 (App Router, Edge Runtime) · TypeScript · Vercel AI SDK con Gemini y GPT-4o · Postgres en Neon con
+          Next.js 14 (App Router, Edge Runtime) · TypeScript · Vercel AI SDK con Grok (xAI) · Postgres en Neon con
           Drizzle ORM · Tailwind CSS y Radix UI · Zod · jsPDF.
         </p>
       </section>

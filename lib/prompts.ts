@@ -1,16 +1,17 @@
 import type { OutlineItem } from "./validation"
 
-/** Modelos usados en cada etapa (única fuente de verdad, también para el registro de uso). */
-export const MODELS = {
-  research: { provider: "google", id: "gemini-2.5-flash" },
-  writer: { provider: "openai", id: "gpt-4o" },
-} as const
+/**
+ * Modelo usado en todas las etapas (única fuente de verdad, también para el registro de uso).
+ * grok-build-0.1 es un modelo de razonamiento: los tokens de razonamiento cuentan dentro de
+ * `maxTokens`, por eso cada etapa reserva margen además del texto visible.
+ */
+export const MODEL = { provider: "xai", id: "grok-build-0.1" } as const
+const REASONING_BUDGET = 4000
 
 export interface PromptSpec {
   system: string
   prompt: string
   maxTokens: number
-  temperature: number
 }
 
 function today(): { date: string; year: number } {
@@ -53,8 +54,7 @@ Entrega un informe conciso (máximo 900 palabras) con estas secciones:
 6. Términos técnicos que requieren definición legal (15 a 20)
 
 Para cada fuente indica nombre, tipo y por qué es relevante. Texto plano con encabezados numerados.`,
-    maxTokens: 3000,
-    temperature: 0.3,
+    maxTokens: 3000 + REASONING_BUDGET,
   }
 }
 
@@ -74,8 +74,7 @@ Responde EXACTAMENTE con este formato y nada más:
 TÍTULO PRIMERO. NOMBRE DEL TÍTULO | Capítulo I. Nombre; Capítulo II. Nombre | Artículos 1 a 9
 
 El primer Título debe incluir un capítulo de definiciones y el último el régimen de sanciones. Los rangos de artículos deben ser consecutivos y sumar entre 45 y 60 artículos.`,
-    maxTokens: 600,
-    temperature: 0.2,
+    maxTokens: 600 + REASONING_BUDGET,
   }
 }
 
@@ -95,8 +94,7 @@ ${topicBlock(topic)}
 - No incluyas el encabezado "EXPOSICIÓN DE MOTIVOS" ni el título de la ley: solo los considerandos.
 
 ${STYLE_RULES}`,
-    maxTokens: 2200,
-    temperature: 0.3,
+    maxTokens: 2200 + REASONING_BUDGET,
   }
 }
 
@@ -132,8 +130,7 @@ Numeración: ${current.range}
 - No redactes otros Títulos, ni transitorios, ni comentarios finales.
 
 ${STYLE_RULES}`,
-    maxTokens: 3000,
-    temperature: 0.2,
+    maxTokens: 3000 + REASONING_BUDGET,
   }
 }
 
@@ -169,7 +166,6 @@ REFERENCIAS
 Lista en formato APA 7 solo de las fuentes que aparecen en la investigación. No agregues fuentes nuevas.
 
 ${STYLE_RULES}`,
-    maxTokens: 1400,
-    temperature: 0.2,
+    maxTokens: 1400 + REASONING_BUDGET,
   }
 }
