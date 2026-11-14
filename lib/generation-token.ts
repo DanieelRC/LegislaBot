@@ -31,9 +31,8 @@ async function hmacKey(secret: string): Promise<CryptoKey> {
 }
 
 /** Emite un token firmado que autoriza los pasos siguientes de una misma generación. */
-export async function signGenerationToken(mode: GenerationMode): Promise<string | null> {
+export async function signGenerationToken(mode: GenerationMode): Promise<string> {
   const secret = generationSecret()
-  if (!secret) return null
   const payload: GenerationTokenPayload = {
     id: crypto.randomUUID(),
     mode,
@@ -46,7 +45,6 @@ export async function signGenerationToken(mode: GenerationMode): Promise<string 
 
 export async function verifyGenerationToken(token: string): Promise<GenerationTokenPayload | null> {
   const secret = generationSecret()
-  if (!secret) return null
   const [body, signature] = token.split(".")
   if (!body || !signature) return null
   try {

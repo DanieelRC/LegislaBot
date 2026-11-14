@@ -1,15 +1,18 @@
 /** @type {import('next').NextConfig} */
 
 const isDev = process.env.NODE_ENV !== "production"
+// La barra de comentarios de Vercel solo se carga en los despliegues de preview
+const vercelLive = process.env.VERCEL_ENV === "preview" ? " https://vercel.live" : ""
 
 // CSP: solo recursos propios. Next necesita estilos y scripts en línea para la hidratación.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}${vercelLive}`,
+  `style-src 'self' 'unsafe-inline'${vercelLive}`,
+  `img-src 'self' data: blob:${vercelLive}`,
+  `font-src 'self' data:${vercelLive}`,
+  `connect-src 'self'${vercelLive}${vercelLive ? " wss://ws-us3.pusher.com" : ""}`,
+  `frame-src${vercelLive || " 'none'"}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

@@ -104,13 +104,7 @@ export async function POST(request: Request) {
       mode = allowed ? "live" : "demo"
       if (!allowed) demoReason = "limit"
     }
-    const signed = await signGenerationToken(mode)
-    if (!signed) {
-      // Sin secreto de firma en producción no se habilita la IA real
-      console.error("GENERATION_SECRET no está configurado")
-      return json({ error: "El servicio no está configurado correctamente." }, 503)
-    }
-    token = signed
+    token = await signGenerationToken(mode)
   } else {
     const payload = await verifyGenerationToken(body.token)
     if (!payload) {
@@ -120,7 +114,8 @@ export async function POST(request: Request) {
     if (!allowed) {
       return json({ error: "Se alcanzó el máximo de pasos para esta generación." }, 429)
     }
-    mode = payload.mode
+    // Sin clave de IA siempre es demo, aunque el token diga otra cosa
+    mode = hasAiKeys() ? payload.mode : "demo"
     token = body.token
   }
 

@@ -11,12 +11,12 @@ export function dailyGenerationLimit(): number {
 /**
  * Secreto para firmar tokens de generación. Usa GENERATION_SECRET si existe; si no, deriva
  * uno de XAI_API_KEY (también secreta y solo del servidor), con un prefijo que separa su uso.
- * Sin ninguna de las dos en producción no se habilita la generación.
+ * Sin clave de IA no hay nada que proteger: la ruta fuerza el modo demo y basta un valor fijo.
  */
-export function generationSecret(): string | null {
+export function generationSecret(): string {
   const explicit = process.env.GENERATION_SECRET?.trim()
   if (explicit) return explicit
   const apiKey = process.env.XAI_API_KEY?.trim()
   if (apiKey) return `legislabot:generation-token:${apiKey}`
-  return process.env.NODE_ENV === "production" ? null : "dev-only-secret-no-usar-en-produccion"
+  return "legislabot:demo-only"
 }
