@@ -34,6 +34,7 @@ export const draftsTable = pgTable("drafts", {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   content: text("content").notNull(),
+  owner_id: varchar("owner_id", { length: 64 }),
   bill_id: integer("bill_id")
     .references(() => billsTable.id, { onDelete: "set null" }),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -68,6 +69,13 @@ export const apiUsageTable = pgTable("api_usage", {
   cost_estimate: decimal("cost_estimate", { precision: 10, scale: 6 }).default("0"),
   request_type: varchar("request_type", { length: 50 }),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+})
+
+// Contadores para limitar el uso (por IP, por token de generación, etc.)
+export const rateLimitsTable = pgTable("rate_limits", {
+  key: varchar("key", { length: 200 }).primaryKey(),
+  count: integer("count").notNull().default(0),
+  expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
 })
 
 // Relaciones entre tablas
