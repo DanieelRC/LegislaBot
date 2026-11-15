@@ -13,7 +13,12 @@ const description =
   "Asistente de técnica legislativa: investiga, estructura y redacta proyectos de ley para la Ciudad de México, sección por sección y en tiempo real."
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
+  // En Vercel se usa el dominio de producción del proyecto; APP_URL queda para otros entornos
+  metadataBase: new URL(
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.APP_URL || "http://localhost:3000",
+  ),
   title: { default: "LegislaBot — Redacción asistida de proyectos de ley", template: "%s · LegislaBot" },
   description,
   openGraph: { title: "LegislaBot", description, type: "website", locale: "es_MX", siteName: "LegislaBot" },
