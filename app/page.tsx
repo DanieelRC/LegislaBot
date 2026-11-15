@@ -1,77 +1,66 @@
-import { LegislativeDraftingForm } from "@/components/legislative-drafting-form"
-import { LegislativeHeader } from "@/components/legislative-header"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ExampleInitiatives } from "@/components/example-initiatives"
-import { DraftList } from "@/components/draft-list"
-import { Toaster } from "@/components/ui/toaster"
-import { EnvWarning } from "@/components/env-warning"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { Suspense } from "react"
-import { testConnection } from "@/lib/db"
-import { DbFallback } from "@/components/db-fallback"
+import { Generator } from "@/components/generator"
 
-// Componente de carga para Suspense
-function Loading() {
-  return (
-    <div className="flex justify-center items-center py-12">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-    </div>
-  )
-}
+const steps = [
+  {
+    n: "I",
+    title: "Investiga",
+    body: "Reúne legislación vigente, iniciativas previas y referentes internacionales sobre el tema, y detecta los vacíos legales.",
+  },
+  {
+    n: "II",
+    title: "Estructura",
+    body: "Propone el título formal de la ley y su esquema de Títulos y Capítulos, con la numeración de artículos ya asignada.",
+  },
+  {
+    n: "III",
+    title: "Redacta",
+    body: "Escribe la exposición de motivos, cada Título del articulado y los transitorios, una sección a la vez y a la vista.",
+  },
+]
 
-export default async function Home() {
-  // Verificar la conexión a la base de datos
-  let dbConnected = false
-  try {
-    dbConnected = await testConnection()
-  } catch (error) {
-    console.error("Error checking database connection:", error)
-    // Continuamos con dbConnected = false
-  }
-
+export default function Home() {
   return (
     <>
-      <Navbar />
-      <main className="min-h-screen bg-slate-50 pb-12">
-        <div className="container mx-auto px-4 py-8">
-          <LegislativeHeader />
+      <Generator />
 
-          <EnvWarning />
+      <section aria-labelledby="como-funciona" className="container max-w-4xl py-14">
+        <div className="rule-double mb-10 w-16" aria-hidden />
+        <h2 id="como-funciona" className="text-3xl font-semibold">
+          Un proceso legislativo, no una caja negra
+        </h2>
+        <ol className="mt-10 grid gap-10 sm:grid-cols-3">
+          {steps.map((step) => (
+            <li key={step.n}>
+              <span className="font-serif text-3xl italic text-gold" aria-hidden>
+                {step.n}
+              </span>
+              <h3 className="mt-2 text-xl font-semibold">{step.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+            </li>
+          ))}
+        </ol>
 
-          {!dbConnected ? (
-            <DbFallback />
-          ) : (
-            <Tabs defaultValue="generate" className="mt-8">
-              <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-8">
-                <TabsTrigger value="generate">Generar</TabsTrigger>
-                <TabsTrigger value="examples">Ejemplos</TabsTrigger>
-                <TabsTrigger value="drafts">Borradores</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="generate">
-                <Suspense fallback={<Loading />}>
-                  <LegislativeDraftingForm />
-                </Suspense>
-              </TabsContent>
-
-              <TabsContent value="examples">
-                <Suspense fallback={<Loading />}>
-                  <ExampleInitiatives />
-                </Suspense>
-              </TabsContent>
-
-              <TabsContent value="drafts">
-                <Suspense fallback={<Loading />}>
-                  <DraftList />
-                </Suspense>
-              </TabsContent>
-            </Tabs>
-          )}
-        </div>
-      </main>
-      <Footer />
-      <Toaster />
+        <dl className="mt-14 grid gap-6 border-t pt-8 text-sm sm:grid-cols-3">
+          <div>
+            <dt className="font-semibold">Formato oficial</dt>
+            <dd className="mt-1 text-muted-foreground">
+              Estructura de iniciativa mexicana, validación automática y exportación a PDF carta o Word.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold">Sin esperas a ciegas</dt>
+            <dd className="mt-1 text-muted-foreground">
+              El texto llega en streaming; puedes detener la redacción y retomarla sin perder lo avanzado.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold">Borradores privados</dt>
+            <dd className="mt-1 text-muted-foreground">
+              No requiere cuenta. Lo que guardas queda ligado a tu navegador y nadie más puede verlo.
+            </dd>
+          </div>
+        </dl>
+      </section>
     </>
   )
 }

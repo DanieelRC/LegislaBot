@@ -3,10 +3,8 @@ import type { Config } from 'tailwindcss'
 const config: Config = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
   ],
   prefix: "",
   theme: {
@@ -51,7 +49,18 @@ const config: Config = {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
-        }
+        },
+        sheet: {
+          DEFAULT: 'hsl(var(--sheet))',
+          foreground: 'hsl(var(--sheet-foreground))'
+        },
+        gold: 'hsl(var(--gold))',
+        success: 'hsl(var(--success))',
+        warning: 'hsl(var(--warning))'
+      },
+      fontFamily: {
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Georgia', 'serif']
       },
       borderRadius: {
         lg: 'var(--radius)',

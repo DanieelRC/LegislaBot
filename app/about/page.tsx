@@ -1,148 +1,115 @@
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { GavelIcon, Code, BookOpen, Shield, Cpu } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = { title: "Acerca de" }
+
+const pipeline = [
+  ["Investigación", "grok-build-0.1", "Marco legal, referentes y vacíos"],
+  ["Estructura", "grok-build-0.1", "Título y esquema con numeración"],
+  ["Exposición de motivos", "grok-build-0.1", "Considerandos fácticos y normativos"],
+  ["Articulado", "grok-build-0.1 × Título", "Una petición por cada Título"],
+  ["Transitorios y referencias", "grok-build-0.1", "Cierre, firma y fuentes"],
+]
+
+const decisions = [
+  {
+    title: "Generación por secciones, en streaming",
+    body: "Una ley completa tarda varios minutos en escribirse y el plan gratuito de Vercel corta las peticiones largas. En lugar de una llamada monolítica, el cliente orquesta peticiones cortas —una por sección— a una ruta Edge que transmite el texto conforme el modelo lo produce. Ninguna petición se acerca al límite, se puede detener y reanudar, y un fallo solo repite ese paso.",
+  },
+  {
+    title: "Cuota por generación con tokens firmados",
+    body: "El primer paso consume la cuota diaria por IP (contador atómico en Postgres) y emite un token HMAC con expiración. Los pasos siguientes deben presentarlo y tienen su propio tope, así que no es posible saltarse el límite llamando directo a pasos posteriores. Agotada la cuota, la app pasa a un modo demo que recorre el mismo flujo con contenido fijo.",
+  },
+  {
+    title: "Borradores privados sin cuentas",
+    body: "Cada navegador recibe un identificador aleatorio en una cookie httpOnly. Los borradores se guardan ligados a él y todas las consultas filtran por ese dueño en el servidor: nadie puede listar ni borrar lo de otra persona, y no hay fricción de registro para quien solo quiere probar.",
+  },
+  {
+    title: "Un solo parser para todo",
+    body: "El texto legal se interpreta una vez (títulos, capítulos, artículos, fracciones, firma) y esa estructura alimenta la vista tipográfica, el índice, el validador de formato y las exportaciones a PDF y Word, de modo que siempre coinciden.",
+  },
+]
+
+const security = [
+  "Entradas validadas con Zod en el servidor; el tema del usuario se delimita en el prompt como dato, no como instrucción.",
+  "Secretos solo en variables de entorno; la página de ajustes usa una lista blanca de claves y exige un token de administración.",
+  "Cabeceras CSP, HSTS, X-Frame-Options y Referrer-Policy en todas las respuestas.",
+  "Errores genéricos hacia el cliente; el detalle queda en los registros del servidor.",
+]
 
 export default function AboutPage() {
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-slate-50 py-8">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-col items-center justify-center text-center mb-12">
-              <div className="flex items-center justify-center mb-4">
-                <GavelIcon className="h-12 w-12 text-emerald-600 mr-2" />
-                <h1 className="text-4xl font-bold text-emerald-700">LegislaBot</h1>
+    <div className="container max-w-3xl py-12">
+      <p className="eyebrow">Caso de estudio</p>
+      <h1 className="mt-2 text-4xl font-semibold sm:text-5xl">Cómo está construido LegislaBot</h1>
+      <p className="mt-5 text-lg text-muted-foreground">
+        Un asistente que convierte un tema en una iniciativa de ley con formato oficial para la Ciudad de México. Nació
+        como proyecto académico en el IPN y se rediseñó con foco en tres cosas: que el proceso sea visible, que el
+        resultado sea utilizable y que el servicio sea seguro de exponer públicamente.
+      </p>
+
+      <section aria-labelledby="flujo" className="mt-14">
+        <h2 id="flujo" className="text-2xl font-semibold">
+          El flujo
+        </h2>
+        <ol className="mt-6 divide-y border-y">
+          {pipeline.map(([step, model, detail], i) => (
+            <li key={step} className="grid grid-cols-[2.5rem_1fr] gap-x-4 py-4 sm:grid-cols-[2.5rem_1fr_10rem]">
+              <span className="font-serif text-xl italic text-gold" aria-hidden>
+                {i + 1}
+              </span>
+              <div>
+                <p className="font-medium">{step}</p>
+                <p className="text-sm text-muted-foreground">{detail}</p>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-                Asistente de Formulación de Proyectos de Ley
-              </h2>
-              <p className="text-lg text-gray-600 max-w-3xl">
-                Plataforma de apoyo a legisladores para la formulación de Proyectos de Ley relacionados con la
-                regulación del uso de la inteligencia artificial en la Ciudad de México (2024-2030).
+              <p className="col-start-2 mt-1 font-mono text-xs text-muted-foreground sm:col-start-3 sm:mt-0 sm:text-right">
+                {model}
               </p>
-            </div>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Acerca del Proyecto</CardTitle>
-              </CardHeader>
-              <CardContent className="prose max-w-none">
-                <p>
-                  LegislaBot es una aplicación web diseñada para apoyar a los legisladores de la Ciudad de México en la
-                  administración legislativa a nivel estatal. Emplea tecnologías de procesamiento del lenguaje natural (PLN)
-                  para reducir significativamente los tiempos de formulación de Proyectos de Ley, específicamente aquellos
-                  relacionados con la regulación del uso de la inteligencia artificial en la Ciudad de México durante el
-                  periodo 2024-2030. La plataforma combina IA avanzada con conocimientos jurídicos para generar
-                  documentos que cumplen con el formato oficial mexicano.
-                </p>
-                <p>
-                  Este proyecto nace de la necesidad de contar con herramientas que faciliten la labor legislativa en
-                  temas tecnológicos emergentes, donde la complejidad técnica y la rápida evolución del campo requieren
-                  un enfoque especializado y actualizado.
-                </p>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card>
-                <CardHeader className="flex flex-row items-start space-x-4 pb-2">
-                  <BookOpen className="h-6 w-6 text-emerald-600 mt-1" />
-                  <div>
-                    <CardTitle>Metodología</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    LegislaBot utiliza un proceso de tres etapas para la generación de proyectos de ley:
-                  </p>
-                  <ol className="mt-4 space-y-2 text-gray-600 list-decimal list-inside">
-                    <li>Investigación previa utilizando fuentes jurídicas y técnicas actualizadas</li>
-                    <li>Generación de borrador base con estructura y contenido preliminar</li>
-                    <li>Refinamiento legal para asegurar precisión técnica y jurídica</li>
-                  </ol>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-start space-x-4 pb-2">
-                  <Cpu className="h-6 w-6 text-emerald-600 mt-1" />
-                  <div>
-                    <CardTitle>Tecnología</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    La plataforma está construida con tecnologías modernas para garantizar rendimiento y escalabilidad:
-                  </p>
-                  <ul className="mt-4 space-y-2 text-gray-600 list-disc list-inside">
-                    <li>Next.js 14 con App Router para una experiencia de usuario fluida</li>
-                    <li>AI SDK para integración con modelos de lenguaje avanzados</li>
-                    <li>Base de datos PostgreSQL para almacenamiento seguro</li>
-                    <li>Tailwind CSS y shadcn/ui para una interfaz moderna y accesible</li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Equipo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center">
-                      <Cpu className="h-10 w-10 text-gray-500" />
-                    </div>
-                    <h3 className="font-medium">Estudiante de Ingeniería en IA</h3>
-                    <p className="text-sm text-gray-600">Daniel Rodríguez Carreón - Técnico en Programación</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center">
-                      <Cpu className="h-10 w-10 text-gray-500" />
-                    </div>
-                    <h3 className="font-medium">Estudiante de Ingeniería en IA</h3>
-                    <p className="text-sm text-gray-600">Fernando Ramírez Franco - Técnico en Telecomunicaciones</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center">
-                      <Cpu className="h-10 w-10 text-gray-500" />
-                    </div>
-                    <h3 className="font-medium">Estudiante de Ingeniería en IA</h3>
-                    <p className="text-sm text-gray-600">Isaac Hillel Mendoza Hernández - Técnico en Informática</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Contacto</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  Para más información sobre el proyecto, colaboraciones o reportar problemas, puedes contactarnos a
-                  través de los siguientes medios:
-                </p>
-                <div className="space-y-2 text-gray-600">
-                  <p>
-                    <strong>Email:</strong> drodriguezc1905@alumno.ipn.mx
-                  </p>
-                  <p>
-                    <strong>Teléfono:</strong> (--) ---- ----
-                  </p>
-                  <p>
-                    <strong>Dirección:</strong> ---------------------
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+      <section aria-labelledby="decisiones" className="mt-14">
+        <h2 id="decisiones" className="text-2xl font-semibold">
+          Decisiones de diseño
+        </h2>
+        <div className="mt-6 space-y-8">
+          {decisions.map((d) => (
+            <article key={d.title}>
+              <h3 className="text-lg font-semibold">{d.title}</h3>
+              <p className="mt-2 leading-relaxed text-muted-foreground">{d.body}</p>
+            </article>
+          ))}
         </div>
-      </main>
-      <Footer />
-    </>
+      </section>
+
+      <section aria-labelledby="seguridad" className="mt-14">
+        <h2 id="seguridad" className="text-2xl font-semibold">
+          Seguridad
+        </h2>
+        <ul className="mt-6 space-y-3">
+          {security.map((item) => (
+            <li key={item} className="border-l-2 border-gold/60 pl-4 text-muted-foreground">
+              {item}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="stack" className="mt-14">
+        <h2 id="stack" className="text-2xl font-semibold">
+          Stack
+        </h2>
+        <p className="mt-4 leading-relaxed text-muted-foreground">
+          Next.js 14 (App Router, Edge Runtime) · TypeScript · Vercel AI SDK con Grok (xAI) · Postgres en Neon con
+          Drizzle ORM · Tailwind CSS y Radix UI · Zod · jsPDF.
+        </p>
+      </section>
+
+      <p className="mt-14 border-t pt-6 text-sm text-muted-foreground">
+        LegislaBot produce borradores de apoyo. No sustituye la revisión jurídica profesional ni constituye asesoría
+        legal; toda cita normativa debe verificarse contra su fuente oficial.
+      </p>
+    </div>
   )
 }

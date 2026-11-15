@@ -1,167 +1,142 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
+import { FileText, Loader2, Search, Trash2 } from "lucide-react"
+import { deleteDraft, listDrafts, type DraftSummary } from "@/app/actions/drafts"
 import { Button } from "@/components/ui/button"
-import { FileText, Trash2, Clock, Eye } from "lucide-react"
-import { getDrafts, deleteDraft } from "@/app/actions/save-draft"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { BillPreview } from "@/components/bill-preview"
 
-// Ajustada para coincidir con lo que devuelve getDrafts
-interface Draft {
-  id: string
-  title: string
-  content: string
-  created_at: string  // Cambiado de createdAt a created_at
-}
+const dateFormat = new Intl.DateTimeFormat("es-MX", { dateStyle: "long", timeStyle: "short" })
 
 export function DraftList() {
-  const [drafts, setDrafts] = useState<Draft[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [selectedDraft, setSelectedDraft] = useState<Draft | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [drafts, setDrafts] = useState<DraftSummary[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [query, setQuery] = useState("")
+  const [toDelete, setToDelete] = useState<DraftSummary | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const { toast } = useToast()
 
-  const loadDrafts = async () => {
-    setIsLoading(true)
-    try {
-      const loadedDrafts = await getDrafts()
-      setDrafts(loadedDrafts)
-    } catch (error) {
-      console.error("Error loading drafts:", error)
-      toast({
-        title: "Error al cargar borradores",
-        description: "No se pudieron cargar los borradores guardados.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   useEffect(() => {
-    loadDrafts()
+    listDrafts().then((result) => {
+      if (result.ok) setDrafts(result.drafts)
+      else {
+        setDrafts([])
+        setError(result.error)
+      }
+    })
   }, [])
 
-  const handleDelete = async (id: string) => {
-    setDeletingId(id)
-    try {
-      const success = await deleteDraft(id)
-      if (success) {
-        setDrafts(drafts.filter((draft) => draft.id !== id))
-        toast({
-          title: "Borrador eliminado",
-          description: "El borrador ha sido eliminado correctamente.",
-        })
-      } else {
-        throw new Error("No se pudo eliminar el borrador")
-      }
-    } catch (error) {
-      console.error("Error deleting draft:", error)
-      toast({
-        title: "Error al eliminar",
-        description: "No se pudo eliminar el borrador. Intenta nuevamente.",
-        variant: "destructive",
-      })
-    } finally {
-      setDeletingId(null)
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return (drafts ?? []).filter((d) => !q || d.title.toLowerCase().includes(q) || d.excerpt.toLowerCase().includes(q))
+  }, [drafts, query])
+
+  const confirmDelete = async () => {
+    if (!toDelete) return
+    setDeleting(true)
+    const result = await deleteDraft(toDelete.id)
+    setDeleting(false)
+    if (result.ok) {
+      setDrafts((prev) => (prev ?? []).filter((d) => d.id !== toDelete.id))
+      toast({ title: "Borrador eliminado" })
+    } else {
+      toast({ title: "No se pudo eliminar", description: result.error, variant: "destructive" })
     }
+    setToDelete(null)
   }
 
-  const handleView = (draft: Draft) => {
-    setSelectedDraft(draft)
-    setIsDialogOpen(true)
+  if (drafts === null) {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2" aria-busy aria-label="Cargando borradores">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-40 animate-pulse rounded-md border bg-card" />
+        ))}
+      </div>
+    )
   }
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString)
-      // Verificar si la fecha es válida
-      if (isNaN(date.getTime())) {
-        return "Fecha no disponible"
-      }
-
-      return new Intl.DateTimeFormat("es-MX", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(date)
-    } catch (error) {
-      console.error("Error formatting date:", error)
-      return "Fecha no disponible"
-    }
+  if (drafts.length === 0) {
+    return (
+      <div className="rounded-md border border-dashed bg-card px-6 py-16 text-center">
+        <FileText className="mx-auto h-10 w-10 text-muted-foreground/60" aria-hidden />
+        <h2 className="mt-4 text-xl font-semibold">{error ? "Borradores no disponibles" : "Aún no hay borradores"}</h2>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+          {error ??
+            "Los proyectos que guardes aparecerán aquí. Son privados: solo se muestran en este navegador."}
+        </p>
+        <Button asChild className="mt-6">
+          <Link href="/">Redactar un proyecto</Link>
+        </Button>
+      </div>
+    )
   }
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-emerald-600" />
-            Borradores Guardados
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-            </div>
-          ) : drafts.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <FileText className="h-12 w-12 mx-auto mb-2 text-gray-400" />
-              <p>No hay borradores guardados</p>
-              <p className="text-sm mt-2">Los proyectos de ley que guardes aparecerán aquí</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {drafts.map((draft) => (
-                <div key={draft.id} className="border rounded-md p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium">{draft.title}</h3>
-                      <div className="flex items-center text-xs text-gray-500 mt-1">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {formatDate(draft.created_at)}
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleView(draft)}>
-                        <Eye className="h-4 w-4 mr-1" />
-                        Ver
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDelete(draft.id)}
-                        disabled={deletingId === draft.id}
-                      >
-                        {deletingId === draft.id ? (
-                          <div className="w-4 h-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="relative mb-6 max-w-sm">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+        <Input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar por título o contenido"
+          aria-label="Buscar borradores"
+          className="pl-9"
+        />
+      </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      {filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Ningún borrador coincide con «{query}».</p>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {filtered.map((draft) => (
+            <li
+              key={draft.id}
+              className="group relative flex flex-col rounded-md border bg-card p-5 transition-shadow hover:shadow-md"
+            >
+              <time dateTime={draft.createdAt} className="text-xs text-muted-foreground">
+                {dateFormat.format(new Date(draft.createdAt))}
+              </time>
+              <h2 className="mt-2 line-clamp-3 font-serif text-lg font-semibold leading-snug">
+                <Link href={`/bills/${draft.id}`} className="after:absolute after:inset-0">
+                  {draft.title}
+                </Link>
+              </h2>
+              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                {draft.excerpt.replace(draft.title, "").replace(/\s+/g, " ").trim()}
+              </p>
+              <div className="relative z-10 mt-4 flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-destructive"
+                  onClick={() => setToDelete(draft)}
+                >
+                  <Trash2 /> Eliminar
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Dialog open={toDelete !== null} onOpenChange={(open) => !open && setToDelete(null)}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Vista Previa del Borrador</DialogTitle>
+            <DialogTitle className="font-serif">¿Eliminar este borrador?</DialogTitle>
+            <DialogDescription>«{toDelete?.title}» se eliminará de forma permanente.</DialogDescription>
           </DialogHeader>
-          {selectedDraft && <BillPreview billContent={selectedDraft.content || ""} />}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setToDelete(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleting}>
+              {deleting && <Loader2 className="animate-spin" />} Eliminar
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
