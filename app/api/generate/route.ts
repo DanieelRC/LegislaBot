@@ -24,6 +24,9 @@ export const runtime = "edge"
 const MAX_STEPS_PER_GENERATION = 40
 /** Marcador que indica al cliente que la sección se interrumpió por un error del modelo. */
 const STREAM_ERROR_MARKER = "\u0000[error]"
+/** Byte invisible (espacio de ancho cero) que abre la respuesta y la mantiene viva; el cliente lo descarta. */
+const HEARTBEAT = "\u200B"
+const HEARTBEAT_INTERVAL_MS = 10_000
 const DEFAULT_LEGISLATOR = "[Nombre de la persona legisladora proponente]"
 
 const json = (body: unknown, status: number) =>
@@ -154,9 +157,24 @@ export async function POST(request: Request) {
     const encoder = new TextEncoder()
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
+        // Vercel no envía las cabeceras hasta el primer byte del cuerpo: se manda un latido
+        // invisible de inmediato y cada pocos segundos mientras el modelo razona sin escribir.
+        const beat = () => controller.enqueue(encoder.encode(HEARTBEAT))
+        beat()
+        let heartbeat: ReturnType<typeof setInterval> | null = setInterval(beat, HEARTBEAT_INTERVAL_MS)
+        const stopHeartbeat = () => {
+          if (heartbeat) clearInterval(heartbeat)
+          heartbeat = null
+        }
         try {
-          for await (const delta of result.textStream) {
-            if (delta) controller.enqueue(encoder.encode(delta))
+          // fullStream (a diferencia de textStream) entrega los errores del proveedor como partes
+          for await (const part of result.fullStream) {
+            if (part.type === "text-delta" && part.textDelta) {
+              stopHeartbeat()
+              controller.enqueue(encoder.encode(part.textDelta))
+            } else if (part.type === "error") {
+              throw part.error
+            }
           }
         } catch (error) {
           if (!request.signal.aborted) {
@@ -164,6 +182,7 @@ export async function POST(request: Request) {
             controller.enqueue(encoder.encode(STREAM_ERROR_MARKER))
           }
         } finally {
+          stopHeartbeat()
           controller.close()
         }
       },

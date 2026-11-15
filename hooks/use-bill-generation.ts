@@ -161,9 +161,10 @@ export function useBillGeneration() {
         for (;;) {
           const { done, value } = await reader.read()
           if (done) break
-          received += decoder.decode(value, { stream: true })
+          // Se descartan los latidos invisibles que envía el servidor mientras el modelo razona
+          received += decoder.decode(value, { stream: true }).replace(/\u200B/g, "")
         }
-        received += decoder.decode()
+        received += decoder.decode().replace(/\u200B/g, "")
       } finally {
         const marker = received.indexOf("\u0000")
         if (marker !== -1) {
