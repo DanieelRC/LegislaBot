@@ -15,6 +15,8 @@ export interface Step {
   index?: number
   text: string
   status: StepStatus
+  /** Momento en que empezó el paso (para mostrar cuánto lleva razonando el modelo). */
+  startedAt?: number
 }
 
 interface GenerationState {
@@ -128,23 +130,53 @@ export function useBillGeneration() {
         update({ mode, demoReason: response.headers.get("X-Demo-Reason") ?? stateRef.current.demoReason })
       }
 
+      // El modelo suele entregar el texto en ráfagas tras razonar; se muestra con un ritmo
+      // de escritura constante (palabra por palabra) que acelera si se acumula texto pendiente.
+      let received = ""
+      let shown = 0
+      let finished = false
+      const reveal = new Promise<void>((resolve) => {
+        const tick = () => {
+          if (signal.aborted) return resolve()
+          const pending = received.length - shown
+          if (pending > 0) {
+            if (document.hidden) shown = received.length
+            else {
+              shown = Math.min(received.length, shown + Math.max(3, Math.ceil(pending / 240)))
+              const nextSpace = received.indexOf(" ", shown)
+              if (nextSpace !== -1 && nextSpace - shown < 24) shown = nextSpace + 1
+            }
+            patchStep(step.id, { text: received.slice(0, shown) })
+          }
+          if (finished && shown >= received.length) return resolve()
+          setTimeout(tick, 16)
+        }
+        tick()
+      })
+
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
-      let text = ""
-      let lastPaint = 0
-      for (;;) {
-        const { done, value } = await reader.read()
-        if (done) break
-        text += decoder.decode(value, { stream: true })
-        const now = performance.now()
-        if (now - lastPaint > 40) {
-          lastPaint = now
-          patchStep(step.id, { text })
+      let interrupted = false
+      try {
+        for (;;) {
+          const { done, value } = await reader.read()
+          if (done) break
+          received += decoder.decode(value, { stream: true })
         }
+        received += decoder.decode()
+      } finally {
+        const marker = received.indexOf("\u0000")
+        if (marker !== -1) {
+          received = received.slice(0, marker)
+          interrupted = true
+        }
+        finished = true
       }
-      text += decoder.decode()
-      if (!text.trim()) throw new Error("La sección llegó vacía. Intenta de nuevo.")
-      return text.trim()
+      await reveal
+      if (interrupted || !received.trim()) {
+        throw new Error("El modelo no pudo completar esta sección. Reintenta el paso.")
+      }
+      return received.trim()
     },
     [patchStep, update],
   )
@@ -158,7 +190,7 @@ export function useBillGeneration() {
       for (;;) {
         const step = stateRef.current.steps.find((st) => st.status !== "done")
         if (!step) break
-        patchStep(step.id, { status: "active", text: "" })
+        patchStep(step.id, { status: "active", text: "", startedAt: Date.now() })
         const text = await streamStep(step, controller.signal)
         patchStep(step.id, { status: "done", text })
 

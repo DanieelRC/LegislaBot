@@ -22,6 +22,8 @@ import { generateRequestSchema, type GenerateRequest } from "@/lib/validation"
 export const runtime = "edge"
 
 const MAX_STEPS_PER_GENERATION = 40
+/** Marcador que indica al cliente que la sección se interrumpió por un error del modelo. */
+const STREAM_ERROR_MARKER = "\u0000[error]"
 const DEFAULT_LEGISLATOR = "[Nombre de la persona legisladora proponente]"
 
 const json = (body: unknown, status: number) =>
@@ -146,7 +148,27 @@ export async function POST(request: Request) {
         }
       },
     })
-    return result.toTextStreamResponse({ headers })
+    // Se responde de inmediato: el modelo razona antes de escribir y las cabeceras no deben
+    // esperar a ese razonamiento. El texto se reenvía conforme llega; si falla a mitad,
+    // se agrega un marcador de error que el cliente convierte en un mensaje legible.
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        try {
+          for await (const delta of result.textStream) {
+            if (delta) controller.enqueue(encoder.encode(delta))
+          }
+        } catch (error) {
+          if (!request.signal.aborted) {
+            console.error(`Error durante el streaming del paso "${body.step}":`, error)
+            controller.enqueue(encoder.encode(STREAM_ERROR_MARKER))
+          }
+        } finally {
+          controller.close()
+        }
+      },
+    })
+    return new Response(stream, { headers: { ...headers, "Content-Type": "text/plain; charset=utf-8" } })
   } catch (error) {
     console.error(`Error al iniciar el paso "${body.step}":`, error)
     return json({ error: "No se pudo generar esta sección. Intenta de nuevo." }, 502)

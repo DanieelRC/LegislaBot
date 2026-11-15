@@ -38,6 +38,45 @@ function DemoNotice({ reason }: { reason: string | null }) {
   )
 }
 
+const THINKING_LABEL: Record<Step["kind"], string> = {
+  research: "Revisando el marco jurídico aplicable",
+  outline: "Diseñando la estructura de la ley",
+  exposition: "Preparando los considerandos",
+  title: "Redactando el articulado",
+  closing: "Preparando transitorios y referencias",
+}
+
+/** El modelo razona antes de escribir: se muestra qué hace y cuánto lleva, para que la espera no parezca un cuelgue. */
+function ThinkingIndicator({ step }: { step: Step }) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  const seconds = step.startedAt ? Math.max(0, Math.round((now - step.startedAt) / 1000)) : 0
+
+  return (
+    <div role="status" className="mt-4 flex items-center gap-3 rounded-md border border-dashed bg-card px-4 py-3 text-sm">
+      <span className="flex gap-1" aria-hidden>
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold"
+            style={{ animationDelay: `${i * 200}ms` }}
+          />
+        ))}
+      </span>
+      <span>
+        {THINKING_LABEL[step.kind]}
+        {step.kind === "title" && <span className="text-muted-foreground"> · {step.label}</span>}
+      </span>
+      <span className="ml-auto tabular-nums text-xs text-muted-foreground">
+        El modelo está razonando · {seconds} s
+      </span>
+    </div>
+  )
+}
+
 function StepIcon({ status }: { status: Step["status"] }) {
   if (status === "done") return <Check className="h-4 w-4 text-success" aria-label="Completado" />
   if (status === "active") return <Loader2 className="h-4 w-4 animate-spin text-primary" aria-label="En curso" />
@@ -261,17 +300,27 @@ export function Generator() {
               <p className="eyebrow mb-4">
                 {gen.activeStep?.kind === "research" ? "Notas de investigación" : "Estructura propuesta"}
               </p>
-              <p
-                className={cn(
-                  "whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground",
-                  running && "typing-cursor",
-                )}
-              >
-                {gen.activeStep?.text || "Consultando el marco jurídico aplicable…"}
-              </p>
+              {gen.activeStep?.text && (
+                <p
+                  className={cn(
+                    "whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground",
+                    running && "typing-cursor",
+                  )}
+                >
+                  {gen.activeStep.text}
+                </p>
+              )}
+              {running && gen.activeStep && !gen.activeStep.text && <ThinkingIndicator step={gen.activeStep} />}
             </div>
           ) : (
-            <BillDocument text={gen.documentText} streaming={running} />
+            <>
+              <BillDocument text={gen.documentText} streaming={running && Boolean(gen.activeStep?.text)} />
+              {running && gen.activeStep && !gen.activeStep.text && (
+                <div className="mx-auto max-w-[52rem]">
+                  <ThinkingIndicator step={gen.activeStep} />
+                </div>
+              )}
+            </>
           )}
           <div ref={endRef} className="h-px scroll-mb-24" />
         </div>
